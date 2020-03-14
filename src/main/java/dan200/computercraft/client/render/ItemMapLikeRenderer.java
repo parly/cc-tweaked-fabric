@@ -7,10 +7,10 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import dan200.computercraft.shared.mixed.MixedFirstPersonRenderer;
+import dan200.computercraft.shared.mixed.MixedHeldItemRenderer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.FirstPersonRenderer;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -22,7 +22,7 @@ public abstract class ItemMapLikeRenderer
      * The main rendering method for the item
      *
      * @param stack The stack to render
-     * @see FirstPersonRenderer#renderFirstPersonMap(ItemStack)
+     * @see HeldItemRenderer#renderFirstPersonMap(ItemStack)
      */
     protected abstract void renderItem( ItemStack stack );
 
@@ -52,7 +52,7 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see FirstPersonRenderer#method_3222(float, Arm, float, ItemStack) // renderMapFirstPersonSide
+     * @see HeldItemRenderer#method_3222(float, Arm, float, ItemStack) // renderMapFirstPersonSide
      */
     private void renderItemFirstPersonSide( Arm side, float equipProgress, float swingProgress, ItemStack stack )
     {
@@ -65,7 +65,7 @@ public abstract class ItemMapLikeRenderer
         {
             GlStateManager.pushMatrix();
             GlStateManager.rotatef( offset * 10f, 0f, 0f, 1f );
-            ((MixedFirstPersonRenderer) minecraft.getFirstPersonRenderer()).renderArmFirstPerson_CC( equipProgress, swingProgress, side );
+            ((MixedHeldItemRenderer) minecraft.getHeldItemRenderer()).renderArmFirstPerson_CC( equipProgress, swingProgress, side );
             GlStateManager.popMatrix();
         }
 
@@ -94,11 +94,11 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see FirstPersonRenderer#renderFirstPersonMap(float, float, float)
+     * @see HeldItemRenderer#renderFirstPersonMap(float, float, float)
      */
     private void renderItemFirstPersonCenter( float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
-        MixedFirstPersonRenderer renderer = (MixedFirstPersonRenderer) MinecraftClient.getInstance().getFirstPersonRenderer();
+        MixedHeldItemRenderer renderer = (MixedHeldItemRenderer) MinecraftClient.getInstance().getHeldItemRenderer();
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.

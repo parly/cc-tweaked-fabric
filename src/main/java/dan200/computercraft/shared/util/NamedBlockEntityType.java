@@ -13,8 +13,8 @@ import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.datafixers.Schemas;
-import net.minecraft.datafixers.TypeReferences;
+import net.minecraft.datafixer.Schemas;
+import net.minecraft.datafixer.TypeReferences;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.MutableRegistry;
 

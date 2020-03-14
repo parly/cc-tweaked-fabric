@@ -33,7 +33,7 @@ public class MixinWorld
     @Inject( method = "setBlockEntity", at = @At( "HEAD" ) )
     public void setBlockEntity( BlockPos pos, @Nullable BlockEntity entity, CallbackInfo info )
     {
-        if( !World.isHeightInvalid( pos ) && entity != null && !entity.isInvalid() && iteratingTickingBlockEntities )
+        if( !World.isHeightInvalid( pos ) && entity != null && !entity.isRemoved() && iteratingTickingBlockEntities )
         {
             setWorld( entity, this );
         }

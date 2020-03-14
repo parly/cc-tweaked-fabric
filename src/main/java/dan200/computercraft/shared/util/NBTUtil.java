@@ -92,8 +92,8 @@ public final class NBTUtil
                 Map<Object, Object> map = new HashMap<>( len );
                 for( int i = 0; i < len; i++ )
                 {
-                    Object key = fromNBTTag( c.getTag( "k" + i ) );
-                    Object value = fromNBTTag( c.getTag( "v" + i ) );
+                    Object key = fromNBTTag( c.get( "k" + i ) );
+                    Object value = fromNBTTag( c.get( "v" + i ) );
                     if( key != null && value != null ) map.put( key, value );
                 }
                 return map;
@@ -124,7 +124,7 @@ public final class NBTUtil
                 Map<String, Object> map = new HashMap<>( compound.getSize() );
                 for( String key : compound.getKeys() )
                 {
-                    Object value = toLua( compound.getTag( key ) );
+                    Object value = toLua( compound.get( key ) );
                     if( value != null ) map.put( key, value );
                 }
                 return map;
@@ -165,9 +165,9 @@ public final class NBTUtil
         for( int i = 0; i < len; i++ )
         {
             String key = Integer.toString( i );
-            if( tag.containsKey( key ) )
+            if( tag.contains( key ) )
             {
-                objects[i] = fromNBTTag( tag.getTag( key ) );
+                objects[i] = fromNBTTag( tag.get( key ) );
             }
         }
         return objects;

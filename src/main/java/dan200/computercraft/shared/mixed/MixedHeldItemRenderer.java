@@ -8,7 +8,7 @@ package dan200.computercraft.shared.mixed;
 
 import net.minecraft.util.Arm;
 
-public interface MixedFirstPersonRenderer
+public interface MixedHeldItemRenderer
 {
     void renderArms_CC();
 

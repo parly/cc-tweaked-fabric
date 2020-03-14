@@ -9,7 +9,7 @@ package dan200.computercraft.api.pocket;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.SystemUtil;
+import net.minecraft.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -38,7 +38,7 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade
 
     protected AbstractPocketUpgrade( Identifier id, ItemConvertible item )
     {
-        this( id, SystemUtil.createTranslationKey( "upgrade", id ) + ".adjective", new ItemStack( item ) );
+        this( id, Util.createTranslationKey( "upgrade", id ) + ".adjective", new ItemStack( item ) );
     }
 
     @Nonnull

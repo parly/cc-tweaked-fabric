@@ -187,9 +187,9 @@ public class TurtleSmartItemModel implements BakedModel
     }
 
     @Override
-    public boolean hasDepthInGui()
+    public boolean hasDepth()
     {
-        return familyModel.hasDepthInGui();
+        return familyModel.hasDepth();
     }
 
     @Override

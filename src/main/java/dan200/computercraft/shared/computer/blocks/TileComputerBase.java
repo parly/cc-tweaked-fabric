@@ -92,10 +92,10 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     */
 
     @Override
-    public void invalidate()
+    public void markRemoved()
     {
         unload();
-        super.invalidate();
+        super.markRemoved();
     }
 
     public abstract void openGUI( PlayerEntity player );
@@ -201,8 +201,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         super.fromTag( nbt );
 
         // Load ID, label and power state
-        m_computerID = nbt.containsKey( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
-        m_label = nbt.containsKey( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
+        m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        m_label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
         m_on = m_startOn = nbt.getBoolean( NBT_ON );
     }
 
@@ -410,9 +410,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     protected void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
-        m_instanceID = nbt.containsKey( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
-        m_label = nbt.containsKey( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        m_computerID = nbt.containsKey( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        m_instanceID = nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
+        m_label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
+        m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
     protected void transferStateFrom( TileComputerBase copy )

@@ -141,7 +141,7 @@ public class CommandAPI implements ILuaAPI
     private static Object getPropertyValue( Property property, Comparable value )
     {
         if( value instanceof String || value instanceof Number || value instanceof Boolean ) return value;
-        return property.getName( value );
+        return property.name( value );
     }
 
     @Override

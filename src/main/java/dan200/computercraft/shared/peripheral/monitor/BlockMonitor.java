@@ -10,13 +10,13 @@ import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderLayer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -38,20 +38,20 @@ public class BlockMonitor extends BlockGeneric
     public BlockMonitor( Settings settings, NamedBlockEntityType<? extends TileGeneric> type )
     {
         super( settings, type );
-        setDefaultState( getStateFactory().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( ORIENTATION, Direction.NORTH )
             .with( FACING, Direction.NORTH )
             .with( STATE, MonitorEdgeState.NONE ) );
     }
 
     @Override
-    public BlockRenderLayer getRenderLayer()
+    public RenderLayer getRenderLayer()
     {
-        return BlockRenderLayer.CUTOUT;
+        return RenderLayer.CUTOUT;
     }
 
     @Override
-    protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( ORIENTATION, FACING, STATE );
     }

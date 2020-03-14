@@ -23,7 +23,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.hit.HitResult;
@@ -31,8 +31,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.CollisionView;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.ViewableWorld;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -62,7 +62,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
     {
         super( settings, TileCable.FACTORY );
 
-        setDefaultState( getStateFactory().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( MODEM, CableModemVariant.None )
             .with( CABLE, false )
             .with( NORTH, false ).with( SOUTH, false )
@@ -73,7 +73,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
     }
 
     @Override
-    protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED );
     }
@@ -154,7 +154,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
         if( modem == null ) return new ItemStack( ComputerCraft.Items.cable );
 
         // We've a modem and cable, so try to work out which one we're interacting with
-        HitResult hit = MinecraftClient.getInstance().hitResult;
+        HitResult hit = MinecraftClient.getInstance().crosshairTarget;
         return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? new ItemStack( ComputerCraft.Items.wiredModem )
             : new ItemStack( ComputerCraft.Items.cable );
@@ -200,7 +200,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
 
     @Override
     @Deprecated
-    public boolean canPlaceAt( BlockState state, ViewableWorld world, BlockPos pos )
+    public boolean canPlaceAt( BlockState state, CollisionView world, BlockPos pos )
     {
         Direction facing = state.get( MODEM ).getFacing();
         if( facing == null ) return true;

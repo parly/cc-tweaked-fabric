@@ -64,7 +64,7 @@ public final class MonitorHighlightRenderer
         GlStateManager.translated( pos.getX() - camera.getPos().getX(), pos.getY() - camera.getPos().getY(), pos.getZ() - camera.getPos().getZ() );
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBufferBuilder();
+        BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin( GL11.GL_LINES, VertexFormats.POSITION_COLOR );
 
         // I wish I could think of a better way to do this

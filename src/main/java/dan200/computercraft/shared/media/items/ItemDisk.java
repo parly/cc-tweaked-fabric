@@ -106,7 +106,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     public static int getDiskID( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        return nbt != null && nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
     private static void setDiskID( @Nonnull ItemStack stack, int id )

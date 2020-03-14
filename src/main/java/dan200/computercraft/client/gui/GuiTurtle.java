@@ -14,12 +14,12 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-public class GuiTurtle extends AbstractContainerScreen<ContainerTurtle>
+public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
     private static final Identifier BACKGROUND_NORMAL = new Identifier( "computercraft", "textures/gui/turtle_normal.png" );
     private static final Identifier BACKGROUND_ADVANCED = new Identifier( "computercraft", "textures/gui/turtle_advanced.png" );
@@ -59,7 +59,7 @@ public class GuiTurtle extends AbstractContainerScreen<ContainerTurtle>
             ComputerCraft.terminalHeight_turtle,
             2, 2, 2, 2
         );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + left, 2 + 8 + top, termPxWidth, termPxHeight );
+        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + x, 2 + 8 + y, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
         setFocused( terminalWrapper );
@@ -91,7 +91,7 @@ public class GuiTurtle extends AbstractContainerScreen<ContainerTurtle>
             int slotX = slot % 4;
             int slotY = slot / 4;
             minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-            blit( left + m_container.m_turtleInvStartX - 2 + slotX * 18, top + m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
+            blit( x + m_container.m_turtleInvStartX - 2 + slotX * 18, y + m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
         }
     }
 
@@ -105,7 +105,7 @@ public class GuiTurtle extends AbstractContainerScreen<ContainerTurtle>
         // Draw border/inventory
         GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
         minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        blit( left, top, 0, 0, containerWidth, containerHeight );
+        blit( x, y, 0, 0, containerWidth, containerHeight );
 
         drawSelectionSlot( advanced );
     }

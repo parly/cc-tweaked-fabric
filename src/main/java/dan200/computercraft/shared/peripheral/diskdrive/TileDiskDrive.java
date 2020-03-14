@@ -116,8 +116,8 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     public void fromTag( CompoundTag nbt )
     {
         super.fromTag( nbt );
-        customName = nbt.containsKey( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
-        if( nbt.containsKey( NBT_ITEM ) )
+        customName = nbt.contains( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        if( nbt.contains( NBT_ITEM ) )
         {
             CompoundTag item = nbt.getCompound( NBT_ITEM );
             m_diskStack = ItemStack.fromTag( item );
@@ -442,7 +442,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     private void updateBlockState()
     {
-        if( invalid ) return;
+        if( removed ) return;
 
         if( !m_diskStack.isEmpty() )
         {
@@ -496,8 +496,8 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     protected void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
-        customName = nbt.containsKey( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
-        m_diskStack = nbt.containsKey( NBT_ITEM ) ? ItemStack.fromTag( nbt.getCompound( NBT_ITEM ) ) : ItemStack.EMPTY;
+        customName = nbt.contains( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        m_diskStack = nbt.contains( NBT_ITEM ) ? ItemStack.fromTag( nbt.getCompound( NBT_ITEM ) ) : ItemStack.EMPTY;
         updateBlock();
     }
 

@@ -401,8 +401,8 @@ public class WidgetTerminal implements Element
                     minecraft.getTextureManager().bindTexture( BACKGROUND );
 
                     Tessellator tesslector = Tessellator.getInstance();
-                    BufferBuilder buffer = tesslector.getBufferBuilder();
-                    buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_UV );
+                    BufferBuilder buffer = tesslector.getBuffer();
+                    buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE );
                     buffer.vertex( x, y + height, 0 ).texture( 0 / 256.0, height / 256.0 ).next();
                     buffer.vertex( x + width, y + height, 0 ).texture( width / 256.0, height / 256.0 ).next();
                     buffer.vertex( x + width, y, 0 ).texture( width / 256.0, 0 / 256.0 ).next();

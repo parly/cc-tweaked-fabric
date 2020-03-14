@@ -15,7 +15,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityContext;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
@@ -23,8 +23,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.CollisionView;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.ViewableWorld;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,14 +37,14 @@ public class BlockWirelessModem extends BlockGeneric implements WaterloggableBlo
     public BlockWirelessModem( Settings settings, NamedBlockEntityType<? extends TileWirelessModem> type )
     {
         super( settings, type );
-        setDefaultState( getStateFactory().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( ON, false )
             .with( WATERLOGGED, false ) );
     }
 
     @Override
-    protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, ON, WATERLOGGED );
     }
@@ -78,7 +78,7 @@ public class BlockWirelessModem extends BlockGeneric implements WaterloggableBlo
 
     @Override
     @Deprecated
-    public boolean canPlaceAt( BlockState state, ViewableWorld world, BlockPos pos )
+    public boolean canPlaceAt( BlockState state, CollisionView world, BlockPos pos )
     {
         Direction facing = state.get( FACING );
         BlockPos offsetPos = pos.offset( facing );

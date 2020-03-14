@@ -245,7 +245,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
         // Destroy the block
         state.getBlock().onBreak( world, blockPosition, state, turtlePlayer );
-        if( world.clearBlockState( blockPosition, false ) )
+        if( world.removeBlock( blockPosition, false ) )
         {
             state.getBlock().onBroken( world, blockPosition, state );
             if( turtlePlayer.isUsingEffectiveTool( state ) )

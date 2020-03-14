@@ -13,7 +13,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -31,13 +31,13 @@ public class BlockDiskDrive extends BlockGeneric
     public BlockDiskDrive( Settings settings )
     {
         super( settings, TileDiskDrive.FACTORY );
-        setDefaultState( getStateFactory().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( STATE, DiskDriveState.EMPTY ) );
     }
 
     @Override
-    protected void appendProperties( StateFactory.Builder<Block, BlockState> properties )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> properties )
     {
         properties.add( FACING, STATE );
     }

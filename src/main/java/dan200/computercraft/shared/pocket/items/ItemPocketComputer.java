@@ -319,7 +319,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     private static int getInstanceID( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
+        return nbt != null && nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
     }
 
     private static void setInstanceID( @Nonnull ItemStack stack, int instanceID )
@@ -330,7 +330,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     private static int getSessionID( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_SESSION ) ? nbt.getInt( NBT_SESSION ) : -1;
+        return nbt != null && nbt.contains( NBT_SESSION ) ? nbt.getInt( NBT_SESSION ) : -1;
     }
 
     private static void setSessionID( @Nonnull ItemStack stack, int sessionID )
@@ -352,7 +352,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         if( computer != null && computer.isOn() )
         {
             CompoundTag computerNBT = computer.getUserData();
-            if( computerNBT != null && computerNBT.containsKey( NBT_LIGHT ) )
+            if( computerNBT != null && computerNBT.contains( NBT_LIGHT ) )
             {
                 return computerNBT.getInt( NBT_LIGHT );
             }
@@ -363,7 +363,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     public static IPocketUpgrade getUpgrade( @Nonnull ItemStack stack )
     {
         CompoundTag compound = stack.getTag();
-        return compound != null && compound.containsKey( NBT_UPGRADE )
+        return compound != null && compound.contains( NBT_UPGRADE )
             ? PocketUpgrades.get( compound.getString( NBT_UPGRADE ) ) : null;
 
     }

@@ -84,9 +84,9 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void validate()
+    public void cancelRemoval()
     {
-        super.validate();
+        super.cancelRemoval();
         TickScheduler.schedule( this );
     }
 

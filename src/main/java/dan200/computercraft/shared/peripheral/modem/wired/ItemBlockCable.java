@@ -14,7 +14,7 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DefaultedList;
-import net.minecraft.util.SystemUtil;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
@@ -68,7 +68,7 @@ public abstract class ItemBlockCable extends BlockItem
     {
         if( translationKey == null )
         {
-            translationKey = SystemUtil.createTranslationKey( "block", Registry.ITEM.getId( this ) );
+            translationKey = Util.createTranslationKey( "block", Registry.ITEM.getId( this ) );
         }
         return translationKey;
     }

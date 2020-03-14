@@ -76,9 +76,9 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void validate()
+    public void cancelRemoval()
     {
-        super.validate();
+        super.cancelRemoval();
         TickScheduler.schedule( this );
     }
 
@@ -92,9 +92,9 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void invalidate()
+    public void markRemoved()
     {
-        super.invalidate();
+        super.markRemoved();
         if( m_clientMonitor != null && m_xIndex == 0 && m_yIndex == 0 ) m_clientMonitor.destroy();
     }
 

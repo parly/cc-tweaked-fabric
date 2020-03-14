@@ -109,7 +109,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
     @Nonnull
     private ItemStack tryItemMerge( PlayerEntity player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
-        Slot slot = slotList.get( slotNum );
+        Slot slot = slots.get( slotNum );
         ItemStack originalStack = ItemStack.EMPTY;
         if( slot != null && slot.hasStack() )
         {

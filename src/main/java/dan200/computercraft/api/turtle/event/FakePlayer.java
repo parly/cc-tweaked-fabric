@@ -14,7 +14,7 @@ import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.command.arguments.EntityAnchorArgumentType;
 import net.minecraft.container.Container;
-import net.minecraft.container.NameableContainerProvider;
+import net.minecraft.container.NameableContainerFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -26,12 +26,12 @@ import net.minecraft.network.MessageType;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.RequestCommandCompletionsC2SPacket;
+import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
-import net.minecraft.server.network.packet.RequestCommandCompletionsC2SPacket;
-import net.minecraft.server.network.packet.VehicleMoveC2SPacket;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -102,7 +102,7 @@ public class FakePlayer extends ServerPlayerEntity
     public void openEditSignScreen( SignBlockEntity tile ) { }
 
     @Override
-    public OptionalInt openContainer( @Nullable NameableContainerProvider container )
+    public OptionalInt openContainer( @Nullable NameableContainerFactory container )
     {
         return OptionalInt.empty();
     }
@@ -254,7 +254,7 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        protected void method_10770( ChannelHandlerContext context, Packet<?> packet )
+        protected void channelRead0( ChannelHandlerContext context, Packet<?> packet )
         {
         }
 
@@ -274,7 +274,7 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        public void setMinCompressedSize( int size )
+        public void setCompressionThreshold( int size )
         {
         }
 

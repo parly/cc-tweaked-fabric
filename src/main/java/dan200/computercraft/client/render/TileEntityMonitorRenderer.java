@@ -87,7 +87,7 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
             // Get renderers
             MinecraftClient mc = MinecraftClient.getInstance();
             Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder renderer = tessellator.getBufferBuilder();
+            BufferBuilder renderer = tessellator.getBuffer();
 
             // Get terminal
             boolean redraw = originTerminal.pollTerminalChanged();
@@ -251,7 +251,7 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
                     final float g = colour.getG();
                     final float b = colour.getB();
 
-                    renderer.begin( GL11.GL_TRIANGLE_STRIP, VertexFormats.POSITION_UV_COLOR );
+                    renderer.begin( GL11.GL_TRIANGLE_STRIP, VertexFormats.POSITION_TEXTURE_COLOR );
                     renderer.vertex( -TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0D ).texture( 0.0, 0.0 ).color( r, g, b, 1.0f ).next();
                     renderer.vertex( -TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).texture( 0.0, 1.0 ).color( r, g, b, 1.0f ).next();
                     renderer.vertex( xSize + TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0D ).texture( 1.0, 0.0 ).color( r, g, b, 1.0f ).next();

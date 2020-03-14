@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.client.util.TextComponentUtil;
+import net.minecraft.client.util.Texts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
@@ -69,7 +69,7 @@ public class ClientTableFormatter implements TableFormatter
 
         // Trim the text if it goes over the allowed length
         int maxWidth = MathHelper.floor( chat.getWidth() / chat.getChatScale() );
-        List<Text> list = TextComponentUtil.wrapLines( component, maxWidth, mc.textRenderer, false, false );
+        List<Text> list = Texts.wrapLines( component, maxWidth, mc.textRenderer, false, false );
         if( !list.isEmpty() ) chat.addMessage( list.get( 0 ), id );
     }
 

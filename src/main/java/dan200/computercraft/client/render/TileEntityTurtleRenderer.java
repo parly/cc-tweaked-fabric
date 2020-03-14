@@ -85,13 +85,13 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
     {
         // Render the label
         String label = turtle.createProxy().getLabel();
-        if( label != null && renderManager.hitResult != null && renderManager.hitResult instanceof BlockHitResult && turtle.getPos().equals( ((BlockHitResult) renderManager.hitResult).getBlockPos() ) )
+        if( label != null && renderManager.crosshairTarget != null && renderManager.crosshairTarget instanceof BlockHitResult && turtle.getPos().equals( ((BlockHitResult) renderManager.crosshairTarget).getBlockPos() ) )
         {
             disableLightmap( true );
             GameRenderer.renderFloatingText(
                 getFontRenderer(), label,
                 (float) posX + 0.5F, (float) posY + 1.2F, (float) posZ + 0.5F, 0,
-                renderManager.cameraEntity.getYaw(), renderManager.cameraEntity.getPitch(), false
+                renderManager.camera.getYaw(), renderManager.camera.getPitch(), false
             );
             disableLightmap( false );
         }
@@ -216,8 +216,8 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
 
     private static void renderQuads( Tessellator tessellator, List<BakedQuad> quads, int[] tints )
     {
-        BufferBuilder buffer = tessellator.getBufferBuilder();
-        VertexFormat format = VertexFormats.POSITION_COLOR_UV_NORMAL;
+        BufferBuilder buffer = tessellator.getBuffer();
+        VertexFormat format = VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL;
         buffer.begin( GL11.GL_QUADS, format );
         for( BakedQuad quad : quads )
         {

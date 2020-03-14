@@ -138,7 +138,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
         if( turtle != null )
         {
             CompoundTag turtleNBT = turtle.getUpgradeNBTData( side );
-            if( turtleNBT.containsKey( "active" ) )
+            if( turtleNBT.contains( "active" ) )
             {
                 active = turtleNBT.getBoolean( "active" );
             }

@@ -10,7 +10,7 @@ import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.Direction;
@@ -24,12 +24,12 @@ public class BlockSpeaker extends BlockGeneric
     public BlockSpeaker( Settings settings )
     {
         super( settings, TileSpeaker.FACTORY );
-        setDefaultState( getStateFactory().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH ) );
     }
 
     @Override
-    protected void appendProperties( StateFactory.Builder<Block, BlockState> properties )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
     }

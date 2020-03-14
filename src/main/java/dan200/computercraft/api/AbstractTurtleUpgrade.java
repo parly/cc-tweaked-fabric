@@ -11,7 +11,7 @@ import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.SystemUtil;
+import net.minecraft.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -42,7 +42,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
 
     protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, ItemStack stack )
     {
-        this( id, type, SystemUtil.createTranslationKey( "upgrade", id ) + ".adjective", stack );
+        this( id, type, Util.createTranslationKey( "upgrade", id ) + ".adjective", stack );
     }
 
     protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, ItemConvertible item )

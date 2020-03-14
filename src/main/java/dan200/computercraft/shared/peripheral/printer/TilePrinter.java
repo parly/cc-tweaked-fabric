@@ -86,7 +86,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     {
         super.fromTag( nbt );
 
-        customName = nbt.containsKey( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.contains( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
 
         // Read page
         synchronized( m_page )
@@ -137,7 +137,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     public void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
-        customName = nbt.containsKey( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.contains( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         updateBlock();
     }
 
@@ -500,7 +500,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     private void updateBlockState( boolean top, boolean bottom )
     {
-        if( invalid ) return;
+        if( removed ) return;
 
         BlockState state = getCachedState();
         if( state.get( BlockPrinter.TOP ) == top & state.get( BlockPrinter.BOTTOM ) == bottom ) return;

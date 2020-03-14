@@ -25,7 +25,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
@@ -53,14 +53,14 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
     public BlockTurtle( Settings settings, ComputerFamily family, NamedBlockEntityType<TileTurtle> type )
     {
         super( settings, family, type );
-        setDefaultState( getStateFactory().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( WATERLOGGED, false )
         );
     }
 
     @Override
-    protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, WATERLOGGED );
     }

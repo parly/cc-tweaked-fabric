@@ -9,12 +9,12 @@ package dan200.computercraft.client.gui;
 import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Identifier;
 
-public class GuiPrinter extends AbstractContainerScreen<ContainerPrinter>
+public class GuiPrinter extends ContainerScreen<ContainerPrinter>
 {
     private static final Identifier BACKGROUND = new Identifier( "computercraft", "textures/gui/printer.png" );
 
@@ -36,9 +36,9 @@ public class GuiPrinter extends AbstractContainerScreen<ContainerPrinter>
     {
         GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
         minecraft.getTextureManager().bindTexture( BACKGROUND );
-        blit( left, top, 0, 0, containerWidth, containerHeight );
+        blit( x, y, 0, 0, containerWidth, containerHeight );
 
-        if( container.isPrinting() ) blit( left + 34, top + 21, 176, 0, 25, 45 );
+        if( container.isPrinting() ) blit( x + 34, y + 21, 176, 0, 25, 45 );
     }
 
     @Override

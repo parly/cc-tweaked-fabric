@@ -122,20 +122,20 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         if( tag == null ) return null;
 
         String key = side == TurtleSide.Left ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
-        return tag.containsKey( key ) ? TurtleUpgrades.get( tag.getString( key ) ) : null;
+        return tag.contains( key ) ? TurtleUpgrades.get( tag.getString( key ) ) : null;
     }
 
     @Override
     public Identifier getOverlay( @Nonnull ItemStack stack )
     {
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.containsKey( NBT_OVERLAY ) ? new Identifier( tag.getString( NBT_OVERLAY ) ) : null;
+        return tag != null && tag.contains( NBT_OVERLAY ) ? new Identifier( tag.getString( NBT_OVERLAY ) ) : null;
     }
 
     @Override
     public int getFuelLevel( @Nonnull ItemStack stack )
     {
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.containsKey( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
+        return tag != null && tag.contains( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
     }
 }

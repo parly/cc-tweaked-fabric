@@ -9,10 +9,10 @@ package dan200.computercraft.shared.mixin;
 import dan200.computercraft.client.render.ItemPocketRenderer;
 import dan200.computercraft.client.render.ItemPrintoutRenderer;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.mixed.MixedFirstPersonRenderer;
+import dan200.computercraft.shared.mixed.MixedHeldItemRenderer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.FirstPersonRenderer;
+import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -22,8 +22,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin( FirstPersonRenderer.class )
-public class MixinFirstPersonRenderer implements MixedFirstPersonRenderer
+@Mixin( HeldItemRenderer.class )
+public class MixinHeldItemRenderer implements MixedHeldItemRenderer
 {
     @Shadow
     private float getMapAngle( float pitch )

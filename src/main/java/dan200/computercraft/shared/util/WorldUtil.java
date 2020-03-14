@@ -56,7 +56,7 @@ public final class WorldUtil
         if( shape.isEmpty() ) return false;
         // AxisAlignedBB.contains, but without strict inequalities.
         Box bb = shape.getBoundingBox();
-        return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
+        return vec.x >= bb.x1 && vec.x <= bb.x2 && vec.y >= bb.y1 && vec.y <= bb.y2 && vec.z >= bb.z1 && vec.z <= bb.z2;
     }
 
     public static Pair<Entity, Vec3d> rayTraceEntities( World world, Vec3d vecStart, Vec3d vecDir, double distance )
@@ -64,7 +64,7 @@ public final class WorldUtil
         Vec3d vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
 
         // Raycast for blocks
-        ENTITY.setPosition( vecStart.x, vecStart.y, vecStart.z );
+        ENTITY.updatePosition( vecStart.x, vecStart.y, vecStart.z );
         HitResult result = world.rayTrace( new RayTraceContext( vecStart, vecEnd, RayTraceContext.ShapeType.OUTLINE, RayTraceContext.FluidHandling.NONE, ENTITY ) );
         if( result != null && result.getType() == HitResult.Type.BLOCK )
         {

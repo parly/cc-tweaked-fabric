@@ -19,7 +19,7 @@ public interface IComputerItem
     default int getComputerID( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        return nbt != null && nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
     default String getLabel( @Nonnull ItemStack stack )

@@ -13,7 +13,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
@@ -32,14 +32,14 @@ public class BlockPrinter extends BlockGeneric
     public BlockPrinter( Settings settings )
     {
         super( settings, TilePrinter.FACTORY );
-        setDefaultState( getStateFactory().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( TOP, false )
             .with( BOTTOM, false ) );
     }
 
     @Override
-    protected void appendProperties( StateFactory.Builder<Block, BlockState> properties )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> properties )
     {
         super.appendProperties( properties );
         properties.add( FACING, TOP, BOTTOM );

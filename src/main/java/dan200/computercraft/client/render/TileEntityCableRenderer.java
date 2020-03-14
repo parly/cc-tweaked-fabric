@@ -48,7 +48,7 @@ public class TileEntityCableRenderer extends BlockEntityRenderer<TileCable>
 
         MinecraftClient mc = MinecraftClient.getInstance();
 
-        HitResult hit = mc.hitResult;
+        HitResult hit = mc.crosshairTarget;
         if( !(hit instanceof BlockHitResult) || !((BlockHitResult) hit).getBlockPos().equals( pos ) ) return;
 
         World world = te.getWorld();
@@ -64,7 +64,7 @@ public class TileEntityCableRenderer extends BlockEntityRenderer<TileCable>
 
         preRenderDamagedBlocks();
 
-        BufferBuilder buffer = Tessellator.getInstance().getBufferBuilder();
+        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR_UV_LMAP );
         buffer.setOffset( x - pos.getX(), y - pos.getY(), z - pos.getZ() );
         buffer.disableColor();

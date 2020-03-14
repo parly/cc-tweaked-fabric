@@ -85,7 +85,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public int getLight()
     {
         CompoundTag tag = getUserData();
-        return tag.containsKey( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
+        return tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
@@ -94,13 +94,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         CompoundTag tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
-            if( !tag.containsKey( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
+            if( !tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
             {
                 tag.putInt( NBT_LIGHT, colour );
                 updateUserData();
             }
         }
-        else if( tag.containsKey( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) )
+        else if( tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) )
         {
             tag.remove( NBT_LIGHT );
             updateUserData();

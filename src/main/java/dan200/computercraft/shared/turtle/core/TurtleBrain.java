@@ -156,23 +156,23 @@ public class TurtleBrain implements ITurtleAccess
     private void readCommon( CompoundTag nbt )
     {
         // Read fields
-        m_colourHex = nbt.containsKey( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : -1;
-        m_fuelLevel = nbt.containsKey( NBT_FUEL ) ? nbt.getInt( NBT_FUEL ) : 0;
-        m_overlay = nbt.containsKey( NBT_OVERLAY ) ? new Identifier( nbt.getString( NBT_OVERLAY ) ) : null;
+        m_colourHex = nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : -1;
+        m_fuelLevel = nbt.contains( NBT_FUEL ) ? nbt.getInt( NBT_FUEL ) : 0;
+        m_overlay = nbt.contains( NBT_OVERLAY ) ? new Identifier( nbt.getString( NBT_OVERLAY ) ) : null;
 
         // Read upgrades
-        setUpgrade( TurtleSide.Left, nbt.containsKey( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
-        setUpgrade( TurtleSide.Right, nbt.containsKey( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
+        setUpgrade( TurtleSide.Left, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
+        setUpgrade( TurtleSide.Right, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
 
         // NBT
         m_upgradeNBTData.clear();
-        if( nbt.containsKey( NBT_LEFT_UPGRADE_DATA ) )
+        if( nbt.contains( NBT_LEFT_UPGRADE_DATA ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Left, nbt.getCompound( NBT_LEFT_UPGRADE_DATA ).method_10553() );
+            m_upgradeNBTData.put( TurtleSide.Left, nbt.getCompound( NBT_LEFT_UPGRADE_DATA ).copy() );
         }
-        if( nbt.containsKey( NBT_RIGHT_UPGRADE_DATA ) )
+        if( nbt.contains( NBT_RIGHT_UPGRADE_DATA ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Right, nbt.getCompound( NBT_RIGHT_UPGRADE_DATA ).method_10553() );
+            m_upgradeNBTData.put( TurtleSide.Right, nbt.getCompound( NBT_RIGHT_UPGRADE_DATA ).copy() );
         }
     }
 
@@ -207,7 +207,7 @@ public class TurtleBrain implements ITurtleAccess
         m_selectedSlot = nbt.getInt( NBT_SLOT );
 
         // Read owner
-        if( nbt.containsKey( "Owner", NBTUtil.TAG_COMPOUND ) )
+        if( nbt.contains( "Owner", NBTUtil.TAG_COMPOUND ) )
         {
             CompoundTag owner = nbt.getCompound( "Owner" );
             m_owningPlayer = new GameProfile(
@@ -339,7 +339,7 @@ public class TurtleBrain implements ITurtleAccess
                         newTurtle.createServerComputer().setPosition( pos );
 
                         // Remove the old turtle
-                        oldWorld.clearBlockState( oldPos, false );
+                        oldWorld.removeBlock( oldPos, false );
 
                         // Make sure everybody knows about it
                         newTurtle.updateBlock();
@@ -350,7 +350,7 @@ public class TurtleBrain implements ITurtleAccess
                 }
 
                 // Something went wrong, remove the newly created turtle
-                world.clearBlockState( pos, false );
+                world.removeBlock( pos, false );
             }
         }
         finally

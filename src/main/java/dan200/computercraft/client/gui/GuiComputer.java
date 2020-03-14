@@ -14,14 +14,14 @@ import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-public class GuiComputer<T extends Container> extends AbstractContainerScreen<T>
+public class GuiComputer<T extends Container> extends ContainerScreen<T>
 {
     public static final Identifier BACKGROUND_NORMAL = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
     public static final Identifier BACKGROUND_ADVANCED = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
@@ -73,7 +73,7 @@ public class GuiComputer<T extends Container> extends AbstractContainerScreen<T>
         super.init();
 
         terminal = new WidgetTerminal( minecraft, () -> m_computer, m_termWidth, m_termHeight, 2, 2, 2, 2 );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 12 + left, 2 + 12 + top, termPxWidth, termPxHeight );
+        terminalWrapper = new WidgetWrapper( terminal, 2 + 12 + x, 2 + 12 + y, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
         setFocused( terminalWrapper );

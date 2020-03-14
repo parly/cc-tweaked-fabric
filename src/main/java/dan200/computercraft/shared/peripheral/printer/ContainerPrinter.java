@@ -81,7 +81,7 @@ public class ContainerPrinter extends Container
     @Override
     public ItemStack transferSlot( PlayerEntity player, int index )
     {
-        Slot slot = slotList.get( index );
+        Slot slot = slots.get( index );
         if( slot == null || !slot.hasStack() ) return ItemStack.EMPTY;
         ItemStack stack = slot.getStack();
         ItemStack result = stack.copy();

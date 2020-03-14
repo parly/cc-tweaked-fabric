@@ -35,7 +35,7 @@ public final class ModelTransformer
 
     public static void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> input, Matrix4f transform )
     {
-        transformQuadsTo( VertexFormats.POSITION_COLOR_UV_NORMAL, output, input, transform );
+        transformQuadsTo( VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL, output, input, transform );
     }
 
     public static void transformQuadsTo( VertexFormat format, List<BakedQuad> output, List<BakedQuad> input, Matrix4f transform )

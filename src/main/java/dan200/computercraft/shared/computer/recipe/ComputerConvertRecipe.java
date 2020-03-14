@@ -36,7 +36,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        if( !method_17728( inventory, world ) ) return false;
+        if( !matches( inventory, world ) ) return false;
 
         for( int i = 0; i < inventory.getInvSize(); i++ )
         {

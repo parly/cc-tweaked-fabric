@@ -124,10 +124,10 @@ public final class WiredModemLocalPeripheral
 
     public void fromTag( @Nonnull CompoundTag tag, @Nonnull String suffix )
     {
-        id = tag.containsKey( NBT_PERIPHERAL_ID + suffix, NBTUtil.TAG_ANY_NUMERIC )
+        id = tag.contains( NBT_PERIPHERAL_ID + suffix, NBTUtil.TAG_ANY_NUMERIC )
             ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
 
-        type = tag.containsKey( NBT_PERIPHERAL_TYPE + suffix, NBTUtil.TAG_STRING )
+        type = tag.contains( NBT_PERIPHERAL_TYPE + suffix, NBTUtil.TAG_STRING )
             ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
     }
 

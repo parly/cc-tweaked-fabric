@@ -56,7 +56,7 @@ public class ContainerDiskDrive extends Container
     @Override
     public ItemStack transferSlot( PlayerEntity player, int slotIndex )
     {
-        Slot slot = slotList.get( slotIndex );
+        Slot slot = slots.get( slotIndex );
         if( slot == null || !slot.hasStack() ) return ItemStack.EMPTY;
 
         ItemStack existing = slot.getStack();

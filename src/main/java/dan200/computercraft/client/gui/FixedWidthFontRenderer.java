@@ -100,7 +100,7 @@ public final class FixedWidthFontRenderer
     {
         // Draw the quads
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder renderer = tessellator.getBufferBuilder();
+        BufferBuilder renderer = tessellator.getBuffer();
         renderer.begin( GL11.GL_TRIANGLES, VertexFormats.POSITION_COLOR );
         if( leftMarginSize > 0.0 )
         {
@@ -138,8 +138,8 @@ public final class FixedWidthFontRenderer
     {
         // Draw the quads
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder renderer = tessellator.getBufferBuilder();
-        renderer.begin( GL11.GL_TRIANGLES, VertexFormats.POSITION_UV_COLOR );
+        BufferBuilder renderer = tessellator.getBuffer();
+        renderer.begin( GL11.GL_TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR );
         for( int i = 0; i < s.length(); i++ )
         {
             // Switch colour

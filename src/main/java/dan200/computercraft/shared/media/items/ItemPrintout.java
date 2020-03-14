@@ -118,13 +118,13 @@ public class ItemPrintout extends Item
     public static String getTitle( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
+        return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
     }
 
     public static int getPageCount( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_PAGES ) ? nbt.getInt( NBT_PAGES ) : 1;
+        return nbt != null && nbt.contains( NBT_PAGES ) ? nbt.getInt( NBT_PAGES ) : 1;
     }
 
     public static String[] getText( @Nonnull ItemStack stack )

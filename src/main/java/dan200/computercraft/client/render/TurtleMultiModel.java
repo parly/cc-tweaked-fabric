@@ -97,9 +97,9 @@ public class TurtleMultiModel implements BakedModel
     }
 
     @Override
-    public boolean hasDepthInGui()
+    public boolean hasDepth()
     {
-        return m_baseModel.hasDepthInGui();
+        return m_baseModel.hasDepth();
     }
 
     @Override

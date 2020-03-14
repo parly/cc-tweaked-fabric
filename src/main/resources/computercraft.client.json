@@ -3,7 +3,7 @@
     "package": "dan200.computercraft.shared.mixin",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "MixinFirstPersonRenderer",
+        "MixinHeldItemRenderer",
         "MixinItemFrameEntityRenderer",
         "MixinMinecraftGame",
         "MixinScreen",

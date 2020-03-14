@@ -365,17 +365,17 @@ public class Terminal
         for( int n = 0; n < m_height; n++ )
         {
             m_text[n].fill( ' ' );
-            if( nbt.containsKey( "term_text_" + n ) )
+            if( nbt.contains( "term_text_" + n ) )
             {
                 m_text[n].write( nbt.getString( "term_text_" + n ) );
             }
             m_textColour[n].fill( base16.charAt( m_cursorColour ) );
-            if( nbt.containsKey( "term_textColour_" + n ) )
+            if( nbt.contains( "term_textColour_" + n ) )
             {
                 m_textColour[n].write( nbt.getString( "term_textColour_" + n ) );
             }
             m_backgroundColour[n].fill( base16.charAt( m_cursorBackgroundColour ) );
-            if( nbt.containsKey( "term_textBgColour_" + n ) )
+            if( nbt.contains( "term_textBgColour_" + n ) )
             {
                 m_backgroundColour[n].write( nbt.getString( "term_textBgColour_" + n ) );
             }

@@ -28,7 +28,7 @@ public interface IColouredItem
     static int getColourBasic( ItemStack stack )
     {
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.containsKey( NBT_COLOUR ) ? tag.getInt( NBT_COLOUR ) : -1;
+        return tag != null && tag.contains( NBT_COLOUR ) ? tag.getInt( NBT_COLOUR ) : -1;
     }
 
     static void setColourBasic( ItemStack stack, int colour )

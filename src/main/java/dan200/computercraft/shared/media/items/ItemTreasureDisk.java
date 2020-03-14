@@ -112,19 +112,19 @@ public class ItemTreasureDisk extends Item implements IMedia
     private static String getTitle( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'alongtimeago' by dan200";
+        return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'alongtimeago' by dan200";
     }
 
     @Nonnull
     private static String getSubPath( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_SUB_PATH ) ? nbt.getString( NBT_SUB_PATH ) : "dan200/alongtimeago";
+        return nbt != null && nbt.contains( NBT_SUB_PATH ) ? nbt.getString( NBT_SUB_PATH ) : "dan200/alongtimeago";
     }
 
     public static int getColour( @Nonnull ItemStack stack )
     {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.containsKey( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : Colour.Blue.getHex();
+        return nbt != null && nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : Colour.Blue.getHex();
     }
 }

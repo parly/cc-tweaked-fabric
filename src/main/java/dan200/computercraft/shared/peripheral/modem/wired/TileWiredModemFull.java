@@ -140,9 +140,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     */
 
     @Override
-    public void invalidate()
+    public void markRemoved()
     {
-        super.invalidate();
+        super.markRemoved();
         doRemove();
     }
 
@@ -231,9 +231,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void validate()
+    public void cancelRemoval()
     {
-        super.validate();
+        super.cancelRemoval();
         TickScheduler.schedule( this );
     }
 

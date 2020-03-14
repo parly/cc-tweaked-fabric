@@ -143,16 +143,16 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     */
 
     @Override
-    public void invalidate()
+    public void markRemoved()
     {
-        super.invalidate();
+        super.markRemoved();
         onRemove();
     }
 
     @Override
-    public void validate()
+    public void cancelRemoval()
     {
-        super.validate();
+        super.cancelRemoval();
         TickScheduler.schedule( this );
     }
 
@@ -200,7 +200,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             {
                 // Drop everything and remove block
                 Block.dropStack( getWorld(), getPos(), new ItemStack( ComputerCraft.Items.wiredModem ) );
-                getWorld().clearBlockState( getPos(), false );
+                getWorld().removeBlock( getPos(), false );
                 // This'll call #destroy(), so we don't need to reset the network here.
             }
 

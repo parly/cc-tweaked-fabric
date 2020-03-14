@@ -103,7 +103,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
             MinecraftClient.getInstance().getTextureManager().bindTexture( BACKGROUND );
 
             Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder buffer = tessellator.getBufferBuilder();
+            BufferBuilder buffer = tessellator.getBuffer();
 
             Colour black = Colour.Black;
             buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION );
@@ -129,8 +129,8 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         float b = (colour & 0xFF) / 255.0f;
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBufferBuilder();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_UV_COLOR );
+        BufferBuilder buffer = tessellator.getBuffer();
+        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE_COLOR );
 
         // Top left, middle, right
         renderTexture( buffer, -FRAME, -FRAME, 12, 28, FRAME, FRAME, r, g, b );
@@ -168,7 +168,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         float b = (colour & 0xFF) / 255.0f;
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBufferBuilder();
+        BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR );
         buffer.vertex( width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + FRAME / 2.0f, 0.0D ).color( r, g, b, 1.0f ).next();
         buffer.vertex( width, height + LIGHT_HEIGHT + FRAME / 2.0f, 0.0D ).color( r, g, b, 1.0f ).next();

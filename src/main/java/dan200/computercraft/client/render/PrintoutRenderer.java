@@ -97,8 +97,8 @@ public final class PrintoutRenderer
         MinecraftClient.getInstance().getTextureManager().bindTexture( BG );
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBufferBuilder();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_UV );
+        BufferBuilder buffer = tessellator.getBuffer();
+        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE );
 
         int leftPages = page;
         int rightPages = pages - page - 1;

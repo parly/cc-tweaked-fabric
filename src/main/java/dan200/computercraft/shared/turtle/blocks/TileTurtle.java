@@ -273,7 +273,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         m_previousInventory = DefaultedList.ofSize( INVENTORY_SIZE, ItemStack.EMPTY );
         for( int i = 0; i < nbttaglist.size(); i++ )
         {
-            CompoundTag tag = nbttaglist.getCompoundTag( i );
+            CompoundTag tag = nbttaglist.getCompound( i );
             int slot = tag.getByte( "Slot" ) & 0xff;
             if( slot < getInvSize() )
             {

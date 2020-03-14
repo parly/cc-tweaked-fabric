@@ -10,13 +10,13 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import org.lwjgl.glfw.GLFW;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 
-public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
+public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
 {
     private final boolean m_book;
     private final int m_pages;
@@ -91,8 +91,8 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
         GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         GlStateManager.enableDepthTest();
 
-        drawBorder( left, top, blitOffset, m_page, m_pages, m_book );
-        drawText( left + X_TEXT_MARGIN, top + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
+        drawBorder( x, y, blitOffset, m_page, m_pages, m_book );
+        drawText( x + X_TEXT_MARGIN, y + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
     }
 
     @Override
