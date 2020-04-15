@@ -15,10 +15,10 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.arguments.ArgumentTypes;
-import net.minecraft.command.arguments.IArgumentSerializer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.command.arguments.serialize.ArgumentSerializer;
+import net.minecraft.util.PacketByteBuf;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -125,41 +125,41 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         return child.getExamples();
     }
 
-    public static class Serializer implements IArgumentSerializer<RepeatArgumentType<?, ?>>
+    public static class Serializer implements ArgumentSerializer<RepeatArgumentType<?, ?>>
     {
         @Override
-        public void write( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull PacketBuffer buf )
+        public void toPacket( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull PacketByteBuf buf )
         {
             buf.writeBoolean( arg.flatten );
-            ArgumentTypes.serialize( buf, arg.child );
-            buf.writeTextComponent( getMessage( arg ) );
+            ArgumentTypes.toPacket( buf, arg.child );
+            buf.writeText( getMessage( arg ) );
         }
 
         @Nonnull
         @Override
         @SuppressWarnings( { "unchecked", "rawtypes" } )
-        public RepeatArgumentType<?, ?> read( @Nonnull PacketBuffer buf )
+        public RepeatArgumentType<?, ?> fromPacket( @Nonnull PacketByteBuf buf )
         {
             boolean isList = buf.readBoolean();
-            ArgumentType<?> child = ArgumentTypes.deserialize( buf );
-            ITextComponent message = buf.readTextComponent();
+            ArgumentType<?> child = ArgumentTypes.fromPacket( buf );
+            Text message = buf.readText();
             BiConsumer<List<Object>, ?> appender = isList ? ( list, x ) -> list.addAll( (Collection) x ) : List::add;
             return new RepeatArgumentType( child, appender, isList, new SimpleCommandExceptionType( message ) );
         }
 
         @Override
-        public void write( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
+        public void toJson( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
         {
             json.addProperty( "flatten", arg.flatten );
             json.addProperty( "child", "<<cannot serialize>>" ); // TODO: Potentially serialize this using reflection.
-            json.addProperty( "error", ITextComponent.Serializer.toJson( getMessage( arg ) ) );
+            json.addProperty( "error", Text.Serializer.toJson( getMessage( arg ) ) );
         }
 
-        private static ITextComponent getMessage( RepeatArgumentType<?, ?> arg )
+        private static Text getMessage( RepeatArgumentType<?, ?> arg )
         {
             Message message = arg.some.create().getRawMessage();
-            if( message instanceof ITextComponent ) return (ITextComponent) message;
-            return new StringTextComponent( message.getString() );
+            if( message instanceof Text ) return (Text) message;
+            return new LiteralText( message.getString() );
         }
     }
 }

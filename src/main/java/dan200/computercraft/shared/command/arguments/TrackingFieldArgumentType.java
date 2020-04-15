@@ -8,7 +8,6 @@ package dan200.computercraft.shared.command.arguments;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.Exceptions;
 
-import static dan200.computercraft.shared.command.text.ChatHelpers.translate;
 
 public final class TrackingFieldArgumentType extends ChoiceArgumentType<TrackingField>
 {

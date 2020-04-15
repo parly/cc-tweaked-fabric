@@ -5,29 +5,24 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderItemInFrameEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
-import static dan200.computercraft.client.render.PrintoutRenderer.*;
-import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
-import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENGTH;
 
 /**
  * Emulates map and item-frame rendering for printouts.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT )
 public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 {
     private static final ItemPrintoutRenderer INSTANCE = new ItemPrintoutRenderer();
@@ -50,9 +45,9 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
+    protected void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )
     {
-        transform.rotate( Vector3f.XP.rotationDegrees( 180f ) );
+        transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( 180f ) );
         transform.scale( 0.42f, 0.42f, -0.42f );
         transform.translate( -0.5f, -0.48f, 0.0f );
 
@@ -70,14 +65,14 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate( 0.0f, 0.0f, -0.001f );
-        transform.rotate( Vector3f.ZP.rotationDegrees( 180f ) );
+        transform.multiply( Vector3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
         transform.scale( 0.95f, 0.95f, -0.95f );
         transform.translate( -0.5f, -0.5f, 0.0f );
 
         drawPrintout( transform, event.getBuffers(), stack );
     }
 
-    private static void drawPrintout( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
+    private static void drawPrintout( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )
     {
         int pages = ItemPrintout.getPageCount( stack );
         boolean book = ((ItemPrintout) stack.getItem()).getType() == ItemPrintout.Type.BOOK;
@@ -104,7 +99,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         transform.scale( scale, scale, scale );
         transform.translate( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
 
-        Matrix4f matrix = transform.getLast().getMatrix();
+        Matrix4f matrix = transform.peek().getModel();
         drawBorder( matrix, render, 0, 0, -0.01f, 0, pages, book );
         drawText( matrix, render,
             X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack )

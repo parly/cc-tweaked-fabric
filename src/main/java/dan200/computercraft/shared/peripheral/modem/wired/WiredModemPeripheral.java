@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public abstract class WiredModemPeripheral extends ModemPeripheral implements IWiredSender
 {

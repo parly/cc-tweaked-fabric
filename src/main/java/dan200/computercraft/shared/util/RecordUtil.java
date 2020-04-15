@@ -8,7 +8,7 @@ package dan200.computercraft.shared.util;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;

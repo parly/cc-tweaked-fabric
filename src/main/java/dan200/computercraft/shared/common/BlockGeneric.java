@@ -9,26 +9,28 @@ import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.world.ServerWorld;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
+import net.minecraft.block.Block.Settings;
+
 public abstract class BlockGeneric extends Block
 {
-    private final TileEntityType<? extends TileGeneric> type;
+    private final BlockEntityType<? extends TileGeneric> type;
 
-    public BlockGeneric( Properties settings, NamedTileEntityType<? extends TileGeneric> type )
+    public BlockGeneric( Settings settings, NamedTileEntityType<? extends TileGeneric> type )
     {
         super( settings );
         this.type = type;
@@ -37,45 +39,45 @@ public abstract class BlockGeneric extends Block
 
     @Override
     @Deprecated
-    public final void onReplaced( @Nonnull BlockState block, @Nonnull World world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
+    public final void onBlockRemoved( @Nonnull BlockState block, @Nonnull World world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
     {
         if( block.getBlock() == replace.getBlock() ) return;
 
-        TileEntity tile = world.getTileEntity( pos );
-        super.onReplaced( block, world, pos, replace, bool );
-        world.removeTileEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
+        super.onBlockRemoved( block, world, pos, replace, bool );
+        world.removeBlockEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).destroy();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public final ActionResultType onBlockActivated( BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public final ActionResult onUse( BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : ActionResultType.PASS;
+        BlockEntity tile = world.getBlockEntity( pos );
+        return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : ActionResult.PASS;
     }
 
     @Override
     @Deprecated
-    public final void neighborChanged( BlockState state, World world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving )
+    public final void neighborUpdate( BlockState state, World world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourChange( neighbourPos );
     }
 
     @Override
-    public final void onNeighborChange( BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbour )
+    public final void onNeighborChange( BlockState state, WorldView world, BlockPos pos, BlockPos neighbour )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourTileEntityChange( neighbour );
     }
 
     @Override
     @Deprecated
-    public void tick( BlockState state, ServerWorld world, BlockPos pos, Random rand )
+    public void scheduledTick( BlockState state, ServerWorld world, BlockPos pos, Random rand )
     {
-        TileEntity te = world.getTileEntity( pos );
+        BlockEntity te = world.getBlockEntity( pos );
         if( te instanceof TileGeneric ) ((TileGeneric) te).blockTick();
     }
 
@@ -87,13 +89,13 @@ public abstract class BlockGeneric extends Block
 
     @Nullable
     @Override
-    public TileEntity createTileEntity( @Nonnull BlockState state, @Nonnull IBlockReader world )
+    public BlockEntity createTileEntity( @Nonnull BlockState state, @Nonnull BlockView world )
     {
-        return type.create();
+        return type.instantiate();
     }
 
     @Override
-    public boolean canBeReplacedByLeaves( BlockState state, IWorldReader world, BlockPos pos )
+    public boolean canBeReplacedByLeaves( BlockState state, WorldView world, BlockPos pos )
     {
         return false;
     }

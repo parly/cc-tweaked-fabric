@@ -14,8 +14,6 @@ import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
-import static dan200.computercraft.api.lua.ArgumentHelper.optString;
 
 public class PrinterPeripheral implements IPeripheral
 {

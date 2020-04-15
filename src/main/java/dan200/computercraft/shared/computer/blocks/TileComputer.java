@@ -15,10 +15,10 @@ import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.container.Container;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,18 +26,18 @@ import javax.annotation.Nullable;
 public class TileComputer extends TileComputerBase
 {
     public static final NamedTileEntityType<TileComputer> FACTORY_NORMAL = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ),
+        new Identifier( ComputerCraft.MOD_ID, "computer_normal" ),
         f -> new TileComputer( ComputerFamily.NORMAL, f )
     );
 
     public static final NamedTileEntityType<TileComputer> FACTORY_ADVANCED = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ),
+        new Identifier( ComputerCraft.MOD_ID, "computer_advanced" ),
         f -> new TileComputer( ComputerFamily.ADVANCED, f )
     );
 
     private ComputerProxy m_proxy;
 
-    public TileComputer( ComputerFamily family, TileEntityType<? extends TileComputer> type )
+    public TileComputer( ComputerFamily family, BlockEntityType<? extends TileComputer> type )
     {
         super( type, family );
     }
@@ -80,13 +80,13 @@ public class TileComputer extends TileComputerBase
     @Override
     public Direction getDirection()
     {
-        return getBlockState().get( BlockComputer.FACING );
+        return getCachedState().get( BlockComputer.FACING );
     }
 
     @Override
     protected void updateBlockState( ComputerState newState )
     {
-        BlockState existing = getBlockState();
+        BlockState existing = getCachedState();
         if( existing.get( BlockComputer.STATE ) != newState )
         {
             getWorld().setBlockState( getPos(), existing.with( BlockComputer.STATE, newState ), 3 );

@@ -7,10 +7,10 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.common.ClientTerminal;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ public class ClientMonitor extends ClientTerminal
         return origin;
     }
 
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     public void createBuffer()
     {
         if( buffer == null )
@@ -50,7 +50,7 @@ public class ClientMonitor extends ClientTerminal
         }
     }
 
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     public void destroy()
     {
         if( buffer != null )
@@ -65,7 +65,7 @@ public class ClientMonitor extends ClientTerminal
         }
     }
 
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     public static void destroyAll()
     {
         synchronized( allMonitors )

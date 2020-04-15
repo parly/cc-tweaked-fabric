@@ -6,12 +6,12 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -32,7 +32,7 @@ public final class InventoryUtil
 
     public static boolean areItemsEqual( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || ItemStack.areItemStacksEqual( a, b );
+        return a == b || ItemStack.areEqualIgnoreDamage( a, b );
     }
 
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
@@ -61,8 +61,8 @@ public final class InventoryUtil
 
         // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
         // null one.
-        CompoundNBT shareTagA = a.getItem().getShareTag( a );
-        CompoundNBT shareTagB = b.getItem().getShareTag( b );
+        CompoundTag shareTagA = a.getItem().getShareTag( a );
+        CompoundTag shareTagB = b.getItem().getShareTag( b );
         if( shareTagA == shareTagB ) return true;
         if( shareTagA == null ) return shareTagB.isEmpty();
         if( shareTagB == null ) return shareTagA.isEmpty();
@@ -74,7 +74,7 @@ public final class InventoryUtil
     public static IItemHandler getInventory( World world, BlockPos pos, Direction side )
     {
         // Look for tile with inventory
-        TileEntity tileEntity = world.getTileEntity( pos );
+        BlockEntity tileEntity = world.getBlockEntity( pos );
         if( tileEntity != null )
         {
             LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
@@ -82,33 +82,33 @@ public final class InventoryUtil
             {
                 return itemHandler.orElseThrow( NullPointerException::new );
             }
-            else if( side != null && tileEntity instanceof ISidedInventory )
+            else if( side != null && tileEntity instanceof SidedInventory )
             {
-                return new SidedInvWrapper( (ISidedInventory) tileEntity, side );
+                return new SidedInvWrapper( (SidedInventory) tileEntity, side );
             }
-            else if( tileEntity instanceof IInventory )
+            else if( tileEntity instanceof Inventory )
             {
-                return new InvWrapper( (IInventory) tileEntity );
+                return new InvWrapper( (Inventory) tileEntity );
             }
         }
 
         // Look for entity with inventory
         Vec3d vecStart = new Vec3d(
-            pos.getX() + 0.5 + 0.6 * side.getXOffset(),
-            pos.getY() + 0.5 + 0.6 * side.getYOffset(),
-            pos.getZ() + 0.5 + 0.6 * side.getZOffset()
+            pos.getX() + 0.5 + 0.6 * side.getOffsetX(),
+            pos.getY() + 0.5 + 0.6 * side.getOffsetY(),
+            pos.getZ() + 0.5 + 0.6 * side.getOffsetZ()
         );
         Direction dir = side.getOpposite();
         Vec3d vecDir = new Vec3d(
-            dir.getXOffset(), dir.getYOffset(), dir.getZOffset()
+            dir.getOffsetX(), dir.getOffsetY(), dir.getOffsetZ()
         );
         Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
         if( hit != null )
         {
             Entity entity = hit.getKey();
-            if( entity instanceof IInventory )
+            if( entity instanceof Inventory )
             {
-                return new InvWrapper( (IInventory) entity );
+                return new InvWrapper( (Inventory) entity );
             }
         }
         return null;
@@ -181,11 +181,11 @@ public final class InventoryUtil
                     {
                         // If we've extracted for this first time, then limit the count to the maximum stack size.
                         partialStack = extracted;
-                        count = Math.min( count, extracted.getMaxStackSize() );
+                        count = Math.min( count, extracted.getMaxCount() );
                     }
                     else
                     {
-                        partialStack.grow( extracted.getCount() );
+                        partialStack.increment( extracted.getCount() );
                     }
 
                     count -= extracted.getCount();

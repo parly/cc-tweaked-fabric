@@ -9,11 +9,10 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.client.renderer.model.*;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.JsonHelper;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
@@ -24,9 +23,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.ModelBakeSettings;
+import net.minecraft.client.render.model.ModelLoader;
+import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList;
+import net.minecraft.client.util.SpriteIdentifier;
+
 public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.TurtleModel>
 {
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_colour" );
+    private static final Identifier COLOUR_TURTLE_MODEL = new Identifier( ComputerCraft.MOD_ID, "block/turtle_colour" );
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
 
@@ -35,7 +41,7 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
     }
 
     @Override
-    public void onResourceManagerReload( @Nonnull IResourceManager manager )
+    public void apply( @Nonnull ResourceManager manager )
     {
     }
 
@@ -43,30 +49,30 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
     @Override
     public TurtleModel read( @Nonnull JsonDeserializationContext deserializationContext, @Nonnull JsonObject modelContents )
     {
-        ResourceLocation model = new ResourceLocation( JSONUtils.getString( modelContents, "model" ) );
+        Identifier model = new Identifier( JsonHelper.getString( modelContents, "model" ) );
         return new TurtleModel( model );
     }
 
     public static final class TurtleModel implements IModelGeometry<TurtleModel>
     {
-        private final ResourceLocation family;
+        private final Identifier family;
 
-        private TurtleModel( ResourceLocation family )
+        private TurtleModel( Identifier family )
         {
             this.family = family;
         }
 
         @Override
-        public Collection<Material> getTextures( IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
+        public Collection<SpriteIdentifier> getTextures( IModelConfiguration owner, Function<Identifier, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
         {
-            Set<Material> materials = new HashSet<>();
-            materials.addAll( modelGetter.apply( family ).getTextures( modelGetter, missingTextureErrors ) );
-            materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getTextures( modelGetter, missingTextureErrors ) );
+            Set<SpriteIdentifier> materials = new HashSet<>();
+            materials.addAll( modelGetter.apply( family ).getTextureDependencies( modelGetter, missingTextureErrors ) );
+            materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getTextureDependencies( modelGetter, missingTextureErrors ) );
             return materials;
         }
 
         @Override
-        public IBakedModel bake( IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, IModelTransform transform, ItemOverrideList overrides, ResourceLocation modelLocation )
+        public BakedModel bake( IModelConfiguration owner, ModelLoader bakery, Function<SpriteIdentifier, Sprite> spriteGetter, ModelBakeSettings transform, ModelItemPropertyOverrideList overrides, Identifier modelLocation )
         {
             return new TurtleSmartItemModel(
                 bakery.getBakedModel( family, transform, spriteGetter ),

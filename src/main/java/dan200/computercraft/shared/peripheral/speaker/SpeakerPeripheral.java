@@ -10,20 +10,18 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.network.play.server.SPlaySoundPacket;
+import net.minecraft.network.packet.s2c.play.PlaySoundIdS2CPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.state.properties.NoteBlockInstrument;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.block.enums.Instrument;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
-import static dan200.computercraft.api.lua.ArgumentHelper.optFiniteDouble;
 
 public abstract class SpeakerPeripheral implements IPeripheral
 {
@@ -74,12 +72,12 @@ public abstract class SpeakerPeripheral implements IPeripheral
                 float volume = (float) optFiniteDouble( args, 1, 1.0 );
                 float pitch = (float) optFiniteDouble( args, 2, 1.0 );
 
-                ResourceLocation identifier;
+                Identifier identifier;
                 try
                 {
-                    identifier = new ResourceLocation( name );
+                    identifier = new Identifier( name );
                 }
-                catch( ResourceLocationException e )
+                catch( InvalidIdentifierException e )
                 {
                     throw new LuaException( "Malformed sound name '" + name + "' " );
                 }
@@ -102,10 +100,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
         float volume = (float) optFiniteDouble( arguments, 1, 1.0 );
         float pitch = (float) optFiniteDouble( arguments, 2, 1.0 );
 
-        NoteBlockInstrument instrument = null;
-        for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )
+        Instrument instrument = null;
+        for( Instrument testInstrument : Instrument.values() )
         {
-            if( testInstrument.getName().equalsIgnoreCase( name ) )
+            if( testInstrument.asString().equalsIgnoreCase( name ) )
             {
                 instrument = testInstrument;
                 break;
@@ -125,7 +123,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         return new Object[] { success };
     }
 
-    private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException
+    private synchronized boolean playSound( ILuaContext context, Identifier name, float volume, float pitch, boolean isNote ) throws LuaException
     {
         if( m_clock - m_lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
             (!isNote || m_clock - m_lastPlayTime != 0 || m_notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
@@ -143,9 +141,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
             if( server == null ) return null;
 
             float adjVolume = Math.min( volume, 3.0f );
-            server.getPlayerList().sendToAllNearExcept(
+            server.getPlayerManager().sendToAround(
                 null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.dimension.getType(),
-                new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
+                new PlaySoundIdS2CPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
             );
             return null;
         } );

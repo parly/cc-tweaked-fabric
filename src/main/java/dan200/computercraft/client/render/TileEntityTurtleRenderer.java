@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.VertexConsumer;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -15,22 +15,22 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.Vector3f;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelManager;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.TexturedRenderLayers;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedModelManager;
+import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
@@ -38,21 +38,21 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
 
-public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
+public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
 {
-    private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_normal", "inventory" );
-    private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_advanced", "inventory" );
-    private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_colour", "inventory" );
-    private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
+    private static final ModelIdentifier NORMAL_TURTLE_MODEL = new ModelIdentifier( "computercraft:turtle_normal", "inventory" );
+    private static final ModelIdentifier ADVANCED_TURTLE_MODEL = new ModelIdentifier( "computercraft:turtle_advanced", "inventory" );
+    private static final ModelIdentifier COLOUR_TURTLE_MODEL = new ModelIdentifier( "computercraft:turtle_colour", "inventory" );
+    private static final ModelIdentifier ELF_OVERLAY_MODEL = new ModelIdentifier( "computercraft:turtle_elf_overlay", "inventory" );
 
     private final Random random = new Random( 0 );
 
-    public TileEntityTurtleRenderer( TileEntityRendererDispatcher renderDispatcher )
+    public TileEntityTurtleRenderer( BlockEntityRenderDispatcher renderDispatcher )
     {
         super( renderDispatcher );
     }
 
-    public static ModelResourceLocation getTurtleModel( ComputerFamily family, boolean coloured )
+    public static ModelIdentifier getTurtleModel( ComputerFamily family, boolean coloured )
     {
         switch( family )
         {
@@ -64,34 +64,34 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         }
     }
 
-    public static ModelResourceLocation getTurtleOverlayModel( ResourceLocation overlay, boolean christmas )
+    public static ModelIdentifier getTurtleOverlayModel( Identifier overlay, boolean christmas )
     {
-        if( overlay != null ) return new ModelResourceLocation( overlay, "inventory" );
+        if( overlay != null ) return new ModelIdentifier( overlay, "inventory" );
         if( christmas ) return ELF_OVERLAY_MODEL;
         return null;
     }
 
     @Override
-    public void render( @Nonnull TileTurtle turtle, float partialTicks, @Nonnull MatrixStack transform, @Nonnull IRenderTypeBuffer renderer, int lightmapCoord, int overlayLight )
+    public void render( @Nonnull TileTurtle turtle, float partialTicks, @Nonnull MatrixStack transform, @Nonnull VertexConsumerProvider renderer, int lightmapCoord, int overlayLight )
     {
         // Render the label
         String label = turtle.createProxy().getLabel();
-        RayTraceResult hit = renderDispatcher.cameraHitResult;
-        if( label != null && hit.getType() == RayTraceResult.Type.BLOCK && turtle.getPos().equals( ((BlockRayTraceResult) hit).getPos() ) )
+        HitResult hit = dispatcher.crosshairTarget;
+        if( label != null && hit.getType() == HitResult.Type.BLOCK && turtle.getPos().equals( ((BlockHitResult) hit).getBlockPos() ) )
         {
-            Minecraft mc = Minecraft.getInstance();
-            FontRenderer font = renderDispatcher.fontRenderer;
+            MinecraftClient mc = MinecraftClient.getInstance();
+            TextRenderer font = dispatcher.textRenderer;
 
             transform.push();
             transform.translate( 0.5, 1.2, 0.5 );
-            transform.rotate( mc.getRenderManager().getCameraOrientation() );
+            transform.multiply( mc.getEntityRenderManager().getRotation() );
             transform.scale( -0.025f, -0.025f, 0.025f );
 
-            Matrix4f matrix = transform.getLast().getMatrix();
-            int opacity = (int) (mc.gameSettings.getTextBackgroundOpacity( 0.25f ) * 255) << 24;
+            Matrix4f matrix = transform.peek().getModel();
+            int opacity = (int) (mc.options.getTextBackgroundOpacity( 0.25f ) * 255) << 24;
             float width = -font.getStringWidth( label ) / 2.0f;
-            font.renderString( label, width, (float) 0, 0x20ffffff, false, matrix, renderer, true, opacity, lightmapCoord );
-            font.renderString( label, width, (float) 0, 0xffffffff, false, matrix, renderer, false, 0, lightmapCoord );
+            font.draw( label, width, (float) 0, 0x20ffffff, false, matrix, renderer, true, opacity, lightmapCoord );
+            font.draw( label, width, (float) 0, 0xffffffff, false, matrix, renderer, false, 0, lightmapCoord );
 
             transform.pop();
         }
@@ -104,7 +104,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         transform.translate( offset.x, offset.y, offset.z );
 
         transform.translate( 0.5f, 0.5f, 0.5f );
-        transform.rotate( Vector3f.YP.rotationDegrees( 180.0f - yaw ) );
+        transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( 180.0f - yaw ) );
         if( label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" )) )
         {
             // Flip the model
@@ -115,13 +115,13 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         // Render the turtle
         int colour = turtle.getColour();
         ComputerFamily family = turtle.getFamily();
-        ResourceLocation overlay = turtle.getOverlay();
+        Identifier overlay = turtle.getOverlay();
 
-        IVertexBuilder buffer = renderer.getBuffer( Atlases.getTranslucentCullBlockType() );
+        VertexConsumer buffer = renderer.getBuffer( TexturedRenderLayers.getEntityTranslucentCull() );
         renderModel( transform, buffer, lightmapCoord, overlayLight, getTurtleModel( family, colour != -1 ), colour == -1 ? null : new int[] { colour } );
 
         // Render the overlay
-        ModelResourceLocation overlayModel = getTurtleOverlayModel( overlay, HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS );
+        ModelIdentifier overlayModel = getTurtleOverlayModel( overlay, HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS );
         if( overlayModel != null )
         {
             renderModel( transform, buffer, lightmapCoord, overlayLight, overlayModel, null );
@@ -134,7 +134,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         transform.pop();
     }
 
-    private void renderUpgrade( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder renderer, int lightmapCoord, int overlayLight, TileTurtle turtle, TurtleSide side, float f )
+    private void renderUpgrade( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, TileTurtle turtle, TurtleSide side, float f )
     {
         ITurtleUpgrade upgrade = turtle.getUpgrade( side );
         if( upgrade == null ) return;
@@ -142,7 +142,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
 
         float toolAngle = turtle.getToolRenderAngle( side, f );
         transform.translate( 0.0f, 0.5f, 0.5f );
-        transform.rotate( Vector3f.XN.rotationDegrees( toolAngle ) );
+        transform.multiply( Vector3f.NEGATIVE_X.getDegreesQuaternion( toolAngle ) );
         transform.translate( 0.0f, -0.5f, -0.5f );
 
         TransformedModel model = upgrade.getModel( turtle.getAccess(), side );
@@ -153,13 +153,13 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         transform.pop();
     }
 
-    private void renderModel( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder renderer, int lightmapCoord, int overlayLight, ModelResourceLocation modelLocation, int[] tints )
+    private void renderModel( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, ModelIdentifier modelLocation, int[] tints )
     {
-        ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getModelManager();
+        BakedModelManager modelManager = MinecraftClient.getInstance().getItemRenderer().getModels().getModelManager();
         renderModel( transform, renderer, lightmapCoord, overlayLight, modelManager.getModel( modelLocation ), tints );
     }
 
-    private void renderModel( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder renderer, int lightmapCoord, int overlayLight, IBakedModel model, int[] tints )
+    private void renderModel( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model, int[] tints )
     {
         random.setSeed( 0 );
         renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, null, random, EmptyModelData.INSTANCE ), tints );
@@ -169,17 +169,17 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         }
     }
 
-    private static void renderQuads( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder buffer, int lightmapCoord, int overlayLight, List<BakedQuad> quads, int[] tints )
+    private static void renderQuads( @Nonnull MatrixStack transform, @Nonnull VertexConsumer buffer, int lightmapCoord, int overlayLight, List<BakedQuad> quads, int[] tints )
     {
-        MatrixStack.Entry matrix = transform.getLast();
+        MatrixStack.Entry matrix = transform.peek();
 
         for( BakedQuad bakedquad : quads )
         {
             int tint = -1;
-            if( tints != null && bakedquad.hasTintIndex() )
+            if( tints != null && bakedquad.hasColor() )
             {
-                int idx = bakedquad.getTintIndex();
-                if( idx >= 0 && idx < tints.length ) tint = tints[bakedquad.getTintIndex()];
+                int idx = bakedquad.getColorIndex();
+                if( idx >= 0 && idx < tints.length ) tint = tints[bakedquad.getColorIndex()];
             }
 
             float f = (float) (tint >> 16 & 255) / 255.0F;

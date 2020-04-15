@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 
 /**

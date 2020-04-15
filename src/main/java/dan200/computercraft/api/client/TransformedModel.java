@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.api.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.TransformationMatrix;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelManager;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.math.Rotation3;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedModelManager;
+import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -20,41 +20,41 @@ import java.util.Objects;
  */
 public final class TransformedModel
 {
-    private final IBakedModel model;
-    private final TransformationMatrix matrix;
+    private final BakedModel model;
+    private final Rotation3 matrix;
 
-    public TransformedModel( @Nonnull IBakedModel model, @Nonnull TransformationMatrix matrix )
+    public TransformedModel( @Nonnull BakedModel model, @Nonnull Rotation3 matrix )
     {
         this.model = Objects.requireNonNull( model );
         this.matrix = Objects.requireNonNull( matrix );
     }
 
-    public TransformedModel( @Nonnull IBakedModel model )
+    public TransformedModel( @Nonnull BakedModel model )
     {
         this.model = Objects.requireNonNull( model );
-        this.matrix = TransformationMatrix.identity();
+        this.matrix = Rotation3.identity();
     }
 
-    public static TransformedModel of( @Nonnull ModelResourceLocation location )
+    public static TransformedModel of( @Nonnull ModelIdentifier location )
     {
-        ModelManager modelManager = Minecraft.getInstance().getModelManager();
+        BakedModelManager modelManager = MinecraftClient.getInstance().getBakedModelManager();
         return new TransformedModel( modelManager.getModel( location ) );
     }
 
-    public static TransformedModel of( @Nonnull ItemStack item, @Nonnull TransformationMatrix transform )
+    public static TransformedModel of( @Nonnull ItemStack item, @Nonnull Rotation3 transform )
     {
-        IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel( item );
+        BakedModel model = MinecraftClient.getInstance().getItemRenderer().getModels().getModel( item );
         return new TransformedModel( model, transform );
     }
 
     @Nonnull
-    public IBakedModel getModel()
+    public BakedModel getModel()
     {
         return model;
     }
 
     @Nonnull
-    public TransformationMatrix getMatrix()
+    public Rotation3 getMatrix()
     {
         return matrix;
     }

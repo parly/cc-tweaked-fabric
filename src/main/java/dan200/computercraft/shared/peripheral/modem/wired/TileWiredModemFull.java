@@ -21,16 +21,16 @@ import dan200.computercraft.shared.util.TickScheduler;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -40,13 +40,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.MODEM_ON;
-import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.PERIPHERAL_ON;
 
 public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 {
     public static final NamedTileEntityType<TileWiredModemFull> FACTORY = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ),
+        new Identifier( ComputerCraft.MOD_ID, "wired_modem_full" ),
         TileWiredModemFull::new
     );
 
@@ -120,7 +118,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private void doRemove()
     {
-        if( world == null || !world.isRemote )
+        if( world == null || !world.isClient )
         {
             m_node.remove();
             m_connectionsFormed = false;
@@ -157,9 +155,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void remove()
+    public void markRemoved()
     {
-        super.remove();
+        super.markRemoved();
         doRemove();
     }
 
@@ -172,7 +170,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-        if( !world.isRemote && m_peripheralAccessAllowed )
+        if( !world.isClient && m_peripheralAccessAllowed )
         {
             for( Direction facing : DirectionUtil.FACINGS )
             {
@@ -187,9 +185,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
-        if( getWorld().isRemote ) return ActionResultType.SUCCESS;
+        if( getWorld().isClient ) return ActionResult.SUCCESS;
 
         // On server, we interacted if a peripheral was found
         Set<String> oldPeriphNames = getConnectedPeripheralNames();
@@ -202,7 +200,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             sendPeripheralChanges( player, "chat.computercraft.wired_modem.peripheral_connected", periphNames );
         }
 
-        return ActionResultType.SUCCESS;
+        return ActionResult.SUCCESS;
     }
 
     private static void sendPeripheralChanges( PlayerEntity player, String kind, Collection<String> peripherals )
@@ -212,36 +210,36 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         List<String> names = new ArrayList<>( peripherals );
         names.sort( Comparator.naturalOrder() );
 
-        StringTextComponent base = new StringTextComponent( "" );
+        LiteralText base = new LiteralText( "" );
         for( int i = 0; i < names.size(); i++ )
         {
-            if( i > 0 ) base.appendText( ", " );
-            base.appendSibling( CommandCopy.createCopyText( names.get( i ) ) );
+            if( i > 0 ) base.append( ", " );
+            base.append( CommandCopy.createCopyText( names.get( i ) ) );
         }
 
-        player.sendStatusMessage( new TranslationTextComponent( kind, base ), false );
+        player.addChatMessage( new TranslatableText( kind, base ), false );
     }
 
     @Override
-    public void read( CompoundNBT nbt )
+    public void fromTag( CompoundTag nbt )
     {
-        super.read( nbt );
+        super.fromTag( nbt );
         m_peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].read( nbt, Integer.toString( i ) );
     }
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT nbt )
+    public CompoundTag toTag( CompoundTag nbt )
     {
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, m_peripheralAccessAllowed );
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].write( nbt, Integer.toString( i ) );
-        return super.write( nbt );
+        return super.toTag( nbt );
     }
 
     private void updateBlockState()
     {
-        BlockState state = getBlockState();
+        BlockState state = getCachedState();
         boolean modemOn = m_modemState.isOpen(), peripheralOn = m_peripheralAccessAllowed;
         if( state.get( MODEM_ON ) == modemOn && state.get( PERIPHERAL_ON ) == peripheralOn ) return;
 
@@ -258,7 +256,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public void blockTick()
     {
-        if( getWorld().isRemote ) return;
+        if( getWorld().isClient ) return;
 
         if( m_modemState.pollChanged() ) updateBlockState();
 
@@ -280,7 +278,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private void connectionsChanged()
     {
-        if( getWorld().isRemote ) return;
+        if( getWorld().isClient ) return;
 
         World world = getWorld();
         BlockPos current = getPos();

@@ -9,12 +9,12 @@ import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.container.Container;
+import net.minecraft.container.ContainerType;
+import net.minecraft.container.NameableContainerFactory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,7 +31,7 @@ public class ContainerHeldItem extends Container
         super( type, id );
 
         this.hand = hand;
-        stack = player.getHeldItem( hand ).copy();
+        stack = player.getStackInHand( hand ).copy();
     }
 
     private static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
@@ -46,30 +46,30 @@ public class ContainerHeldItem extends Container
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull PlayerEntity player )
+    public boolean canUse( @Nonnull PlayerEntity player )
     {
         if( !player.isAlive() ) return false;
 
-        ItemStack stack = player.getHeldItem( hand );
+        ItemStack stack = player.getStackInHand( hand );
         return stack == this.stack || !stack.isEmpty() && !this.stack.isEmpty() && stack.getItem() == this.stack.getItem();
     }
 
-    public static class Factory implements INamedContainerProvider
+    public static class Factory implements NameableContainerFactory
     {
         private final ContainerType<ContainerHeldItem> type;
-        private final ITextComponent name;
+        private final Text name;
         private final Hand hand;
 
         public Factory( ContainerType<ContainerHeldItem> type, ItemStack stack, Hand hand )
         {
             this.type = type;
-            this.name = stack.getDisplayName();
+            this.name = stack.getName();
             this.hand = hand;
         }
 
         @Nonnull
         @Override
-        public ITextComponent getDisplayName()
+        public Text getDisplayName()
         {
             return name;
         }

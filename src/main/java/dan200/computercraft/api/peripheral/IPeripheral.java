@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 

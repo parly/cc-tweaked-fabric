@@ -10,8 +10,8 @@ import dan200.computercraft.shared.computer.core.*;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.container.Container;
+import net.minecraft.container.ContainerType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +40,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
     protected static IComputer getComputer( PlayerInventory player, ComputerContainerData data )
     {
         int id = data.getInstanceId();
-        if( !player.player.world.isRemote ) return ComputerCraft.serverComputerRegistry.get( id );
+        if( !player.player.world.isClient ) return ComputerCraft.serverComputerRegistry.get( id );
 
         ClientComputer computer = ComputerCraft.clientComputerRegistry.get( id );
         if( computer == null ) ComputerCraft.clientComputerRegistry.add( id, computer = new ClientComputer( id ) );
@@ -48,7 +48,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull PlayerEntity player )
+    public boolean canUse( @Nonnull PlayerEntity player )
     {
         return canUse.test( player );
     }
@@ -74,9 +74,9 @@ public class ContainerComputerBase extends Container implements IContainerComput
     }
 
     @Override
-    public void onContainerClosed( PlayerEntity player )
+    public void close( PlayerEntity player )
     {
-        super.onContainerClosed( player );
+        super.close( player );
         input.close();
     }
 }

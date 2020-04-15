@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringIdentifiable;
 
 import javax.annotation.Nonnull;
 
-public enum DiskDriveState implements IStringSerializable
+public enum DiskDriveState implements StringIdentifiable
 {
     EMPTY( "empty" ),
     FULL( "full" ),
@@ -24,7 +24,7 @@ public enum DiskDriveState implements IStringSerializable
 
     @Override
     @Nonnull
-    public String getName()
+    public String asString()
     {
         return name;
     }

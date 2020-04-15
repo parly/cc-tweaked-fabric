@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -22,7 +22,7 @@ public final class RedstoneUtil
         if( ForgeEventFactory.onNeighborNotify( world, pos, block, EnumSet.of( side ), false ).isCanceled() ) return;
 
         BlockPos neighbourPos = pos.offset( side );
-        world.neighborChanged( neighbourPos, block.getBlock(), pos );
-        world.notifyNeighborsOfStateExcept( neighbourPos, block.getBlock(), side.getOpposite() );
+        world.updateNeighbor( neighbourPos, block.getBlock(), pos );
+        world.updateNeighborsExcept( neighbourPos, block.getBlock(), side.getOpposite() );
     }
 }

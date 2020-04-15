@@ -32,10 +32,6 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-import static org.squiddev.cobalt.ValueFactory.varargsOf;
-import static org.squiddev.cobalt.debug.DebugFrame.FLAG_HOOKED;
-import static org.squiddev.cobalt.debug.DebugFrame.FLAG_HOOKYIELD;
 
 public class CobaltLuaMachine implements ILuaMachine
 {

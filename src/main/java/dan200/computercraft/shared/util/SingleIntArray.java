@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.util.IIntArray;
+import net.minecraft.container.PropertyDelegate;
 
 @FunctionalInterface
-public interface SingleIntArray extends IIntArray
+public interface SingleIntArray extends PropertyDelegate
 {
     int get();
 

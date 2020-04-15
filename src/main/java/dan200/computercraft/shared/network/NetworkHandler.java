@@ -9,9 +9,9 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.client.*;
 import dan200.computercraft.shared.network.server.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.PacketByteBuf;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -34,7 +34,7 @@ public final class NetworkHandler
     public static void setup()
     {
         String version = ComputerCraft.getVersion();
-        network = NetworkRegistry.ChannelBuilder.named( new ResourceLocation( ComputerCraft.MOD_ID, "network" ) )
+        network = NetworkRegistry.ChannelBuilder.named( new Identifier( ComputerCraft.MOD_ID, "network" ) )
             .networkProtocolVersion( () -> version )
             .clientAcceptedVersions( version::equals ).serverAcceptedVersions( version::equals )
             .simpleChannel();
@@ -56,12 +56,12 @@ public final class NetworkHandler
 
     public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
     {
-        network.sendTo( packet, ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT );
+        network.sendTo( packet, ((ServerPlayerEntity) player).networkHandler.connection, NetworkDirection.PLAY_TO_CLIENT );
     }
 
     public static void sendToAllPlayers( NetworkMessage packet )
     {
-        for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
+        for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerManager().getPlayerList() )
         {
             sendToPlayer( player, packet );
         }
@@ -74,9 +74,9 @@ public final class NetworkHandler
 
     public static void sendToAllAround( NetworkMessage packet, World world, Vec3d pos, double range )
     {
-        for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
+        for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerManager().getPlayerList() )
         {
-            if( player.getEntityWorld() == world && player.getDistanceSq( pos ) < range * range )
+            if( player.getEntityWorld() == world && player.squaredDistanceTo( pos ) < range * range )
             {
                 sendToPlayer( player, packet );
             }
@@ -109,7 +109,7 @@ public final class NetworkHandler
      * @param id      The identifier for this packet type
      * @param decoder The factory for this type of packet.
      */
-    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<PacketBuffer, T> decoder )
+    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<PacketByteBuf, T> decoder )
     {
         network.messageBuilder( type, id )
             .encoder( NetworkMessage::toBytes )

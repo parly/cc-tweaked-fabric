@@ -19,10 +19,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 
-import static dan200.computercraft.shared.pocket.items.ItemPocketComputer.NBT_LIGHT;
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess
 {
@@ -54,12 +53,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         if( entity instanceof PlayerEntity )
         {
             PlayerInventory inventory = ((PlayerEntity) entity).inventory;
-            return inventory.mainInventory.contains( m_stack ) || inventory.offHandInventory.contains( m_stack ) ? entity : null;
+            return inventory.main.contains( m_stack ) || inventory.offHand.contains( m_stack ) ? entity : null;
         }
         else if( entity instanceof LivingEntity )
         {
             LivingEntity living = (LivingEntity) entity;
-            return living.getHeldItemMainhand() == m_stack || living.getHeldItemOffhand() == m_stack ? entity : null;
+            return living.getMainHandStack() == m_stack || living.getOffHandStack() == m_stack ? entity : null;
         }
         else
         {
@@ -83,14 +82,14 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getLight()
     {
-        CompoundNBT tag = getUserData();
+        CompoundTag tag = getUserData();
         return tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
     public void setLight( int colour )
     {
-        CompoundNBT tag = getUserData();
+        CompoundTag tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
             if( !tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
@@ -108,7 +107,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     @Nonnull
     @Override
-    public CompoundNBT getUpgradeNBTData()
+    public CompoundTag getUpgradeNBTData()
     {
         return ItemPocketComputer.getUpgradeInfo( m_stack );
     }
@@ -128,7 +127,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     @Nonnull
     @Override
-    public Map<ResourceLocation, IPeripheral> getUpgrades()
+    public Map<Identifier, IPeripheral> getUpgrades()
     {
         return m_upgrade == null ? Collections.emptyMap() : Collections.singletonMap( m_upgrade.getUpgradeID(), getPeripheral( ComputerSide.BACK ) );
     }
@@ -163,7 +162,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         if( entity != null )
         {
             setWorld( entity.getEntityWorld() );
-            setPosition( entity.getPosition() );
+            setPosition( entity.getBlockPos() );
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them
@@ -188,7 +187,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         {
             // Broadcast the state to the current entity if they're not already interacting with it.
             ServerPlayerEntity player = (ServerPlayerEntity) m_entity;
-            if( player.connection != null && !isInteracting( player ) )
+            if( player.networkHandler != null && !isInteracting( player ) )
             {
                 NetworkHandler.sendToPlayer( player, createTerminalPacket() );
             }

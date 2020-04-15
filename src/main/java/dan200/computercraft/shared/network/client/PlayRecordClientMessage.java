@@ -6,12 +6,12 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.PacketByteBuf;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -45,13 +45,13 @@ public class PlayRecordClientMessage implements NetworkMessage
         soundEvent = null;
     }
 
-    public PlayRecordClientMessage( PacketBuffer buf )
+    public PlayRecordClientMessage( PacketByteBuf buf )
     {
         pos = buf.readBlockPos();
         if( buf.readBoolean() )
         {
             name = buf.readString( Short.MAX_VALUE );
-            soundEvent = ForgeRegistries.SOUND_EVENTS.getValue( buf.readResourceLocation() );
+            soundEvent = ForgeRegistries.SOUND_EVENTS.getValue( buf.readIdentifier() );
         }
         else
         {
@@ -61,7 +61,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull PacketByteBuf buf )
     {
         buf.writeBlockPos( pos );
         if( soundEvent == null )
@@ -72,16 +72,16 @@ public class PlayRecordClientMessage implements NetworkMessage
         {
             buf.writeBoolean( true );
             buf.writeString( name );
-            buf.writeResourceLocation( Objects.requireNonNull( soundEvent.getRegistryName(), "Sound is not registered" ) );
+            buf.writeIdentifier( Objects.requireNonNull( soundEvent.getRegistryName(), "Sound is not registered" ) );
         }
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
-        Minecraft mc = Minecraft.getInstance();
-        mc.worldRenderer.playRecord( soundEvent, pos );
-        if( name != null ) mc.ingameGUI.setRecordPlayingMessage( name );
+        MinecraftClient mc = MinecraftClient.getInstance();
+        mc.worldRenderer.playSong( soundEvent, pos );
+        if( name != null ) mc.inGameHud.setRecordPlayingOverlay( name );
     }
 }

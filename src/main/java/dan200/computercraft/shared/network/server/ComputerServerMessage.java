@@ -9,7 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -34,13 +34,13 @@ public abstract class ComputerServerMessage implements NetworkMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull PacketByteBuf buf )
     {
         buf.writeVarInt( instanceId );
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         instanceId = buf.readVarInt();
     }

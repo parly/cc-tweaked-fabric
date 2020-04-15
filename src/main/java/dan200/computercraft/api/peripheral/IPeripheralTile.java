@@ -5,9 +5,7 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

@@ -15,16 +15,16 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -34,12 +34,12 @@ import java.util.Set;
 public class TileMonitor extends TileGeneric implements IPeripheralTile
 {
     public static final NamedTileEntityType<TileMonitor> FACTORY_NORMAL = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "monitor_normal" ),
+        new Identifier( ComputerCraft.MOD_ID, "monitor_normal" ),
         f -> new TileMonitor( f, false )
     );
 
     public static final NamedTileEntityType<TileMonitor> FACTORY_ADVANCED = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "monitor_advanced" ),
+        new Identifier( ComputerCraft.MOD_ID, "monitor_advanced" ),
         f -> new TileMonitor( f, true )
     );
 
@@ -70,7 +70,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     private int m_xIndex = 0;
     private int m_yIndex = 0;
 
-    public TileMonitor( TileEntityType<? extends TileMonitor> type, boolean advanced )
+    public TileMonitor( BlockEntityType<? extends TileMonitor> type, boolean advanced )
     {
         super( type );
         this.advanced = advanced;
@@ -89,13 +89,13 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         // TODO: Call this before using the block
         if( m_destroyed ) return;
         m_destroyed = true;
-        if( !getWorld().isRemote ) contractNeighbours();
+        if( !getWorld().isClient ) contractNeighbours();
     }
 
     @Override
-    public void remove()
+    public void markRemoved()
     {
-        super.remove();
+        super.markRemoved();
         if( m_clientMonitor != null && m_xIndex == 0 && m_yIndex == 0 ) m_clientMonitor.destroy();
     }
 
@@ -108,39 +108,39 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
-        if( !player.isCrouching() && getFront() == hit.getFace() )
+        if( !player.isInSneakingPose() && getFront() == hit.getSide() )
         {
-            if( !getWorld().isRemote )
+            if( !getWorld().isClient )
             {
                 monitorTouched(
-                    (float) (hit.getHitVec().x - hit.getPos().getX()),
-                    (float) (hit.getHitVec().y - hit.getPos().getY()),
-                    (float) (hit.getHitVec().z - hit.getPos().getZ())
+                    (float) (hit.getPos().x - hit.getBlockPos().getX()),
+                    (float) (hit.getPos().y - hit.getBlockPos().getY()),
+                    (float) (hit.getPos().z - hit.getBlockPos().getZ())
                 );
             }
-            return ActionResultType.SUCCESS;
+            return ActionResult.SUCCESS;
         }
 
-        return ActionResultType.PASS;
+        return ActionResult.PASS;
     }
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT tag )
+    public CompoundTag toTag( CompoundTag tag )
     {
         tag.putInt( NBT_X, m_xIndex );
         tag.putInt( NBT_Y, m_yIndex );
         tag.putInt( NBT_WIDTH, m_width );
         tag.putInt( NBT_HEIGHT, m_height );
-        return super.write( tag );
+        return super.toTag( tag );
     }
 
     @Override
-    public void read( CompoundNBT tag )
+    public void fromTag( CompoundTag tag )
     {
-        super.read( tag );
+        super.fromTag( tag );
         m_xIndex = tag.getInt( NBT_X );
         m_yIndex = tag.getInt( NBT_Y );
         m_width = tag.getInt( NBT_WIDTH );
@@ -228,7 +228,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
             BlockPos pos = getPos();
-            TileEntity te = world.getTileEntity( pos.offset( getRight(), -m_xIndex ).offset( getDown(), -m_yIndex ) );
+            BlockEntity te = world.getBlockEntity( pos.offset( getRight(), -m_xIndex ).offset( getDown(), -m_yIndex ) );
             if( !(te instanceof TileMonitor) ) return null;
 
             return m_serverMonitor = ((TileMonitor) te).createServerMonitor();
@@ -240,7 +240,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         if( m_clientMonitor != null ) return m_clientMonitor;
 
         BlockPos pos = getPos();
-        TileEntity te = world.getTileEntity( pos.offset( getRight(), -m_xIndex ).offset( getDown(), -m_yIndex ) );
+        BlockEntity te = world.getBlockEntity( pos.offset( getRight(), -m_xIndex ).offset( getDown(), -m_yIndex ) );
         if( !(te instanceof TileMonitor) ) return null;
 
         return m_clientMonitor = ((TileMonitor) te).m_clientMonitor;
@@ -249,7 +249,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     // Networking stuff
 
     @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
 
@@ -265,7 +265,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    protected final void readDescription( @Nonnull CompoundNBT nbt )
+    protected final void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
 
@@ -304,7 +304,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     private void updateBlockState()
     {
-        getWorld().setBlockState( getPos(), getBlockState()
+        getWorld().setBlockState( getPos(), getCachedState()
             .with( BlockMonitor.STATE, MonitorEdgeState.fromConnections(
                 m_yIndex < m_height - 1, m_yIndex > 0,
                 m_xIndex > 0, m_xIndex < m_width - 1 ) ), 2 );
@@ -313,12 +313,12 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     // region Sizing and placement stuff
     public Direction getDirection()
     {
-        return getBlockState().get( BlockMonitor.FACING );
+        return getCachedState().get( BlockMonitor.FACING );
     }
 
     public Direction getOrientation()
     {
-        return getBlockState().get( BlockMonitor.ORIENTATION );
+        return getCachedState().get( BlockMonitor.ORIENTATION );
     }
 
     public Direction getFront()
@@ -329,7 +329,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     public Direction getRight()
     {
-        return getDirection().rotateYCCW();
+        return getDirection().rotateYCounterclockwise();
     }
 
     public Direction getDown()
@@ -367,7 +367,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         World world = getWorld();
         if( world == null || !world.isAreaLoaded( pos, 0 ) ) return null;
 
-        TileEntity tile = world.getTileEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( !(tile instanceof TileMonitor) ) return null;
 
         TileMonitor monitor = (TileMonitor) tile;
@@ -656,7 +656,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public AxisAlignedBB getRenderBoundingBox()
+    public Box getRenderBoundingBox()
     {
         TileMonitor start = getNeighbour( 0, 0 );
         TileMonitor end = getNeighbour( m_width - 1, m_height - 1 );
@@ -670,12 +670,12 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
             int maxX = Math.max( startPos.getX(), endPos.getX() ) + 1;
             int maxY = Math.max( startPos.getY(), endPos.getY() ) + 1;
             int maxZ = Math.max( startPos.getZ(), endPos.getZ() ) + 1;
-            return new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
+            return new Box( minX, minY, minZ, maxX, maxY, maxZ );
         }
         else
         {
             BlockPos pos = getPos();
-            return new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
+            return new Box( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
         }
     }
 }

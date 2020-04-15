@@ -22,8 +22,8 @@ import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.container.Container;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -42,7 +42,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     private final ComputerFamily m_family;
     private final Computer m_computer;
-    private CompoundNBT m_userData;
+    private CompoundTag m_userData;
     private boolean m_changed;
 
     private boolean m_changedLastFrame;
@@ -133,11 +133,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.unload();
     }
 
-    public CompoundNBT getUserData()
+    public CompoundTag getUserData()
     {
         if( m_userData == null )
         {
-            m_userData = new CompoundNBT();
+            m_userData = new CompoundTag();
         }
         return m_userData;
     }
@@ -154,7 +154,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     protected NetworkMessage createTerminalPacket()
     {
-        CompoundNBT tagCompound = new CompoundNBT();
+        CompoundTag tagCompound = new CompoundTag();
         writeDescription( tagCompound );
         return new ComputerTerminalClientMessage( getInstanceID(), tagCompound );
     }
@@ -173,7 +173,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
             NetworkMessage packet = null;
-            for( PlayerEntity player : server.getPlayerList().getPlayers() )
+            for( PlayerEntity player : server.getPlayerManager().getPlayerList() )
             {
                 if( isInteracting( player ) )
                 {
@@ -310,13 +310,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public double getTimeOfDay()
     {
-        return (m_world.getDayTime() + 6000) % 24000 / 1000.0;
+        return (m_world.getTimeOfDay() + 6000) % 24000 / 1000.0;
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((m_world.getDayTime() + 6000) / 24000) + 1;
+        return (int) ((m_world.getTimeOfDay() + 6000) / 24000) + 1;
     }
 
     @Override
@@ -360,7 +360,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     {
         if( player == null ) return null;
 
-        Container container = player.openContainer;
+        Container container = player.container;
         if( !(container instanceof IContainerComputer) ) return null;
 
         IContainerComputer computerContainer = (IContainerComputer) container;

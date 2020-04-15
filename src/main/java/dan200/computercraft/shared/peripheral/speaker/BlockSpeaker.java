@@ -8,35 +8,37 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.block.Block.Settings;
+
 public class BlockSpeaker extends BlockGeneric
 {
-    private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    private static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
-    public BlockSpeaker( Properties settings )
+    public BlockSpeaker( Settings settings )
     {
         super( settings, TileSpeaker.FACTORY );
-        setDefaultState( getStateContainer().getBaseState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> properties )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return getDefaultState().with( FACING, placement.getPlayerFacing().getOpposite() );
     }
 }

@@ -6,7 +6,6 @@
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

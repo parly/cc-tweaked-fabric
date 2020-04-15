@@ -7,8 +7,8 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 public class ComputerDataClientMessage extends ComputerClientMessage
 {
     private ComputerState state;
-    private CompoundNBT userData;
+    private CompoundTag userData;
 
     public ComputerDataClientMessage( ServerComputer computer )
     {
@@ -33,18 +33,18 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeEnumValue( state );
+        buf.writeEnumConstant( state );
         buf.writeCompoundTag( userData );
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        state = buf.readEnumValue( ComputerState.class );
+        state = buf.readEnumConstant( ComputerState.class );
         userData = buf.readCompoundTag();
     }
 

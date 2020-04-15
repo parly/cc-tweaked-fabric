@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.command.builder;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 

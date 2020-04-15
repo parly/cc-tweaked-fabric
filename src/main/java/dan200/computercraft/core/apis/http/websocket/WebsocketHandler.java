@@ -17,7 +17,6 @@ import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.util.CharsetUtil;
 
-import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EVENT;
 
 public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
 {

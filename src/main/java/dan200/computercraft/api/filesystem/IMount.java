@@ -5,9 +5,6 @@
  */
 package dan200.computercraft.api.filesystem;
 
-import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.peripheral.IComputerAccess;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

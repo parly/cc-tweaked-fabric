@@ -8,8 +8,8 @@ package dan200.computercraft.shared.util;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +22,7 @@ public class CreativeTabMain extends ItemGroup
 
     @Nonnull
     @Override
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     public ItemStack createIcon()
     {
         return new ItemStack( ComputerCraft.Blocks.computerNormal );

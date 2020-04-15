@@ -9,7 +9,6 @@ import dan200.computercraft.core.computer.TimeoutState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.InputStream;
 
 /**
  * The result of executing an action on a machine.

@@ -10,25 +10,25 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.DyeColor;
+import net.minecraft.util.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.SpecialCraftingRecipe;
+import net.minecraft.recipe.SpecialRecipeSerializer;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
-public class DiskRecipe extends SpecialRecipe
+public class DiskRecipe extends SpecialCraftingRecipe
 {
-    private final Ingredient paper = Ingredient.fromItems( Items.PAPER );
+    private final Ingredient paper = Ingredient.ofItems( Items.PAPER );
     private final Ingredient redstone = Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
 
-    public DiskRecipe( ResourceLocation id )
+    public DiskRecipe( Identifier id )
     {
         super( id );
     }
@@ -39,9 +39,9 @@ public class DiskRecipe extends SpecialRecipe
         boolean paperFound = false;
         boolean redstoneFound = false;
 
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getInvSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getInvStack( i );
 
             if( !stack.isEmpty() )
             {
@@ -67,13 +67,13 @@ public class DiskRecipe extends SpecialRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inv )
+    public ItemStack craft( @Nonnull CraftingInventory inv )
     {
         ColourTracker tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getInvSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getInvStack( i );
 
             if( stack.isEmpty() ) continue;
 
@@ -91,24 +91,24 @@ public class DiskRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean fits( int x, int y )
     {
         return x >= 2 && y >= 2;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getOutput()
     {
         return ItemDisk.createFromIDAndColour( -1, null, Colour.BLUE.getHex() );
     }
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<DiskRecipe> SERIALIZER = new SpecialRecipeSerializer<>( DiskRecipe::new );
+    public static final RecipeSerializer<DiskRecipe> SERIALIZER = new SpecialRecipeSerializer<>( DiskRecipe::new );
 }

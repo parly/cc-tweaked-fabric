@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.StringIdentifiable;
 
 import javax.annotation.Nonnull;
 
-public enum CableModemVariant implements IStringSerializable
+public enum CableModemVariant implements StringIdentifiable
 {
     None( "none", null ),
     DownOff( "down_off", Direction.DOWN ),
@@ -52,19 +52,19 @@ public enum CableModemVariant implements IStringSerializable
     @Nonnull
     public static CableModemVariant from( Direction facing )
     {
-        return facing == null ? None : VALUES[1 + facing.getIndex()];
+        return facing == null ? None : VALUES[1 + facing.getId()];
     }
 
     @Nonnull
     public static CableModemVariant from( Direction facing, boolean modem, boolean peripheral )
     {
         int state = (modem ? 2 : 0) + (peripheral ? 1 : 0);
-        return facing == null ? None : VALUES[1 + 6 * state + facing.getIndex()];
+        return facing == null ? None : VALUES[1 + 6 * state + facing.getId()];
     }
 
     @Nonnull
     @Override
-    public String getName()
+    public String asString()
     {
         return name;
     }

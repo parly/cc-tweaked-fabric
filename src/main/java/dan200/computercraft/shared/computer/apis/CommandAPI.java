@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.computer.apis;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.ComputerCraft;
@@ -16,12 +15,12 @@ import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.state.IProperty;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.state.property.Property;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -29,8 +28,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public class CommandAPI implements ILuaAPI
 {
@@ -71,17 +68,17 @@ public class CommandAPI implements ILuaAPI
     private Object[] doCommand( String command )
     {
         MinecraftServer server = m_computer.getWorld().getServer();
-        if( server == null || !server.isCommandBlockEnabled() )
+        if( server == null || !server.areCommandBlocksEnabled() )
         {
             return new Object[] { false, createOutput( "Command blocks disabled by server" ) };
         }
 
-        Commands commandManager = server.getCommandManager();
+        CommandManager commandManager = server.getCommandManager();
         TileCommandComputer.CommandReceiver receiver = m_computer.getReceiver();
         try
         {
             receiver.clearOutput();
-            int result = commandManager.handleCommand( m_computer.getSource(), command );
+            int result = commandManager.execute( m_computer.getSource(), command );
             return new Object[] { result > 0, receiver.copyOutput(), result };
         }
         catch( Throwable t )
@@ -101,24 +98,24 @@ public class CommandAPI implements ILuaAPI
         table.put( "name", ForgeRegistries.BLOCKS.getKey( block ).toString() );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, Comparable<?>> entry : state.getValues().entrySet() )
+        for( Map.Entry<Property<?>, Comparable<?>> entry : state.getEntries().entrySet() )
         {
-            IProperty<?> property = entry.getKey();
+            Property<?> property = entry.getKey();
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
         }
         table.put( "state", stateTable );
 
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.write( new CompoundNBT() ) ) );
+        BlockEntity tile = world.getBlockEntity( pos );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.toTag( new CompoundTag() ) ) );
 
         return table;
     }
 
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static Object getPropertyValue( IProperty property, Comparable value )
+    private static Object getPropertyValue( Property property, Comparable value )
     {
         if( value instanceof String || value instanceof Number || value instanceof Boolean ) return value;
-        return property.getName( value );
+        return property.name( value );
     }
 
     @Override
@@ -144,7 +141,7 @@ public class CommandAPI implements ILuaAPI
                     MinecraftServer server = m_computer.getWorld().getServer();
 
                     if( server == null ) return new Object[] { Collections.emptyMap() };
-                    CommandNode<CommandSource> node = server.getCommandManager().getDispatcher().getRoot();
+                    CommandNode<ServerCommandSource> node = server.getCommandManager().getDispatcher().getRoot();
                     for( int j = 0; j < arguments.length; j++ )
                     {
                         String name = getString( arguments, j );

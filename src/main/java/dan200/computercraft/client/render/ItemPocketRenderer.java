@@ -5,9 +5,9 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.render.VertexConsumer;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -15,24 +15,26 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
-import static dan200.computercraft.client.gui.GuiComputer.*;
+
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.client.util.math.Vector3f;
 
 /**
  * Emulates map rendering for pocket computers.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT )
 public final class ItemPocketRenderer extends ItemMapLikeRenderer
 {
     private static final int MARGIN = 2;
@@ -59,7 +61,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
+    protected void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -82,8 +84,8 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
         transform.push();
-        transform.rotate( Vector3f.YP.rotationDegrees( 180f ) );
-        transform.rotate( Vector3f.ZP.rotationDegrees( 180f ) );
+        transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( 180f ) );
+        transform.multiply( Vector3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
         transform.scale( 0.5f, 0.5f, 0.5f );
 
         float scale = 0.75f / Math.max( width + FRAME * 2, height + FRAME * 2 + LIGHT_HEIGHT );
@@ -95,7 +97,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         ComputerFamily family = item.getFamily();
         int frameColour = item.getColour( stack );
 
-        Matrix4f matrix = transform.getLast().getMatrix();
+        Matrix4f matrix = transform.peek().getModel();
         renderFrame( matrix, family, frameColour, width, height );
 
         // Render the light
@@ -117,7 +119,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
     private static void renderFrame( Matrix4f transform, ComputerFamily family, int colour, int width, int height )
     {
-        Minecraft.getInstance().getTextureManager().bindTexture( colour != -1
+        MinecraftClient.getInstance().getTextureManager().bindTexture( colour != -1
             ? BACKGROUND_COLOUR
             : family == ComputerFamily.NORMAL ? BACKGROUND_NORMAL : BACKGROUND_ADVANCED
         );
@@ -128,7 +130,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX );
+        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE );
 
         // Top left, middle, right
         renderTexture( transform, buffer, -FRAME, -FRAME, 12, 28, FRAME, FRAME, r, g, b );
@@ -167,27 +169,27 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
-        buffer.pos( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + FRAME / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.pos( transform, width, height + LIGHT_HEIGHT + FRAME / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.pos( transform, width, height + FRAME / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.pos( transform, width - LIGHT_HEIGHT * 2, height + FRAME / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
+        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR );
+        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + FRAME / 2.0f, 0 ).color( r, g, b, 1.0f ).next();
+        buffer.vertex( transform, width, height + LIGHT_HEIGHT + FRAME / 2.0f, 0 ).color( r, g, b, 1.0f ).next();
+        buffer.vertex( transform, width, height + FRAME / 2.0f, 0 ).color( r, g, b, 1.0f ).next();
+        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + FRAME / 2.0f, 0 ).color( r, g, b, 1.0f ).next();
 
         tessellator.draw();
         RenderSystem.enableTexture();
     }
 
-    private static void renderTexture( Matrix4f transform, IVertexBuilder builder, int x, int y, int textureX, int textureY, int width, int height, float r, float g, float b )
+    private static void renderTexture( Matrix4f transform, VertexConsumer builder, int x, int y, int textureX, int textureY, int width, int height, float r, float g, float b )
     {
         renderTexture( transform, builder, x, y, textureX, textureY, width, height, width, height, r, g, b );
     }
 
-    private static void renderTexture( Matrix4f transform, IVertexBuilder builder, int x, int y, int textureX, int textureY, int width, int height, int textureWidth, int textureHeight, float r, float g, float b )
+    private static void renderTexture( Matrix4f transform, VertexConsumer builder, int x, int y, int textureX, int textureY, int width, int height, int textureWidth, int textureHeight, float r, float g, float b )
     {
         float scale = 1 / 255.0f;
-        builder.pos( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).tex( textureX * scale, (textureY + textureHeight) * scale ).endVertex();
-        builder.pos( transform, x + width, y + height, 0 ).color( r, g, b, 1.0f ).tex( (textureX + textureWidth) * scale, (textureY + textureHeight) * scale ).endVertex();
-        builder.pos( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).tex( (textureX + textureWidth) * scale, textureY * scale ).endVertex();
-        builder.pos( transform, x, y, 0 ).color( r, g, b, 1.0f ).tex( textureX * scale, textureY * scale ).endVertex();
+        builder.vertex( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).texture( textureX * scale, (textureY + textureHeight) * scale ).next();
+        builder.vertex( transform, x + width, y + height, 0 ).color( r, g, b, 1.0f ).texture( (textureX + textureWidth) * scale, (textureY + textureHeight) * scale ).next();
+        builder.vertex( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).texture( (textureX + textureWidth) * scale, textureY * scale ).next();
+        builder.vertex( transform, x, y, 0 ).color( r, g, b, 1.0f ).texture( textureX * scale, textureY * scale ).next();
     }
 }

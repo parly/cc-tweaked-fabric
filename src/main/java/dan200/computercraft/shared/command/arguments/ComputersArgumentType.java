@@ -15,9 +15,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.arguments.IArgumentSerializer;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.command.arguments.serialize.ArgumentSerializer;
+import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -26,9 +26,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static dan200.computercraft.shared.command.CommandUtils.suggest;
-import static dan200.computercraft.shared.command.CommandUtils.suggestOnServer;
-import static dan200.computercraft.shared.command.Exceptions.COMPUTER_ARG_NONE;
 
 public final class ComputersArgumentType implements ArgumentType<ComputersArgumentType.ComputersSupplier>
 {
@@ -49,7 +46,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         return SOME;
     }
 
-    public static Collection<ServerComputer> getComputersArgument( CommandContext<CommandSource> context, String name ) throws CommandSyntaxException
+    public static Collection<ServerComputer> getComputersArgument( CommandContext<ServerCommandSource> context, String name ) throws CommandSyntaxException
     {
         return context.getArgument( name, ComputersSupplier.class ).unwrap( context.getSource() );
     }
@@ -171,24 +168,24 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         );
     }
 
-    public static class Serializer implements IArgumentSerializer<ComputersArgumentType>
+    public static class Serializer implements ArgumentSerializer<ComputersArgumentType>
     {
 
         @Override
-        public void write( @Nonnull ComputersArgumentType arg, @Nonnull PacketBuffer buf )
+        public void toPacket( @Nonnull ComputersArgumentType arg, @Nonnull PacketByteBuf buf )
         {
             buf.writeBoolean( arg.requireSome );
         }
 
         @Nonnull
         @Override
-        public ComputersArgumentType read( @Nonnull PacketBuffer buf )
+        public ComputersArgumentType fromPacket( @Nonnull PacketByteBuf buf )
         {
             return buf.readBoolean() ? SOME : MANY;
         }
 
         @Override
-        public void write( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
+        public void toJson( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
         {
             json.addProperty( "requireSome", arg.requireSome );
         }
@@ -197,10 +194,10 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     @FunctionalInterface
     public interface ComputersSupplier
     {
-        Collection<ServerComputer> unwrap( CommandSource source ) throws CommandSyntaxException;
+        Collection<ServerComputer> unwrap( ServerCommandSource source ) throws CommandSyntaxException;
     }
 
-    public static Set<ServerComputer> unwrap( CommandSource source, Collection<ComputersSupplier> suppliers ) throws CommandSyntaxException
+    public static Set<ServerComputer> unwrap( ServerCommandSource source, Collection<ComputersSupplier> suppliers ) throws CommandSyntaxException
     {
         Set<ServerComputer> computers = new HashSet<>();
         for( ComputersSupplier supplier : suppliers ) computers.addAll( supplier.unwrap( source ) );

@@ -13,30 +13,30 @@ import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.SpecialCraftingRecipe;
+import net.minecraft.recipe.SpecialRecipeSerializer;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public final class TurtleUpgradeRecipe extends SpecialRecipe
+public final class TurtleUpgradeRecipe extends SpecialCraftingRecipe
 {
-    private TurtleUpgradeRecipe( ResourceLocation id )
+    private TurtleUpgradeRecipe( Identifier id )
     {
         super( id );
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean fits( int x, int y )
     {
         return x >= 3 && y >= 1;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getOutput()
     {
         return TurtleItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null, null, 0, null );
     }
@@ -44,12 +44,12 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !getCraftingResult( inventory ).isEmpty();
+        return !craft( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack craft( @Nonnull CraftingInventory inventory )
     {
         // Scan the grid for a row containing a turtle and 1 or 2 items
         ItemStack leftItem = ItemStack.EMPTY;
@@ -64,7 +64,7 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
                 boolean finishedRow = false;
                 for( int x = 0; x < inventory.getWidth(); x++ )
                 {
-                    ItemStack item = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                    ItemStack item = inventory.getInvStack( x + y * inventory.getWidth() );
                     if( !item.isEmpty() )
                     {
                         if( finishedRow )
@@ -122,7 +122,7 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
                 // Turtle is already found, just check this row is empty
                 for( int x = 0; x < inventory.getWidth(); x++ )
                 {
-                    ItemStack item = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                    ItemStack item = inventory.getInvStack( x + y * inventory.getWidth() );
                     if( !item.isEmpty() )
                     {
                         return ItemStack.EMPTY;
@@ -174,16 +174,16 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
         String label = itemTurtle.getLabel( turtle );
         int fuelLevel = itemTurtle.getFuelLevel( turtle );
         int colour = itemTurtle.getColour( turtle );
-        ResourceLocation overlay = itemTurtle.getOverlay( turtle );
+        Identifier overlay = itemTurtle.getOverlay( turtle );
         return TurtleItemFactory.create( computerID, label, colour, family, upgrades[0], upgrades[1], fuelLevel, overlay );
     }
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SpecialRecipeSerializer<>( TurtleUpgradeRecipe::new );
+    public static final RecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SpecialRecipeSerializer<>( TurtleUpgradeRecipe::new );
 }

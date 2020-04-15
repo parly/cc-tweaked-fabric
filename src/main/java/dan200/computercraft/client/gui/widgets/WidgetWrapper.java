@@ -5,17 +5,17 @@
  */
 package dan200.computercraft.client.gui.widgets;
 
-import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.Element;
 
-public class WidgetWrapper implements IGuiEventListener
+public class WidgetWrapper implements Element
 {
-    private final IGuiEventListener listener;
+    private final Element listener;
     private final int x;
     private final int y;
     private final int width;
     private final int height;
 
-    public WidgetWrapper( IGuiEventListener listener, int x, int y, int width, int height )
+    public WidgetWrapper( Element listener, int x, int y, int width, int height )
     {
         this.listener = listener;
         this.x = x;

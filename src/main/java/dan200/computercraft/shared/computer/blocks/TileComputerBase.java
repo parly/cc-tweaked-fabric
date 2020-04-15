@@ -21,31 +21,30 @@ import dan200.computercraft.shared.util.RedstoneUtil;
 import joptsimple.internal.Strings;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.RedstoneDiodeBlock;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.container.NameableContainerFactory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Tickable;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.INameable;
+import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, ITickableTileEntity, IPeripheralTile, INameable, INamedContainerProvider
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, Tickable, IPeripheralTile, Nameable, NameableContainerFactory
 {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
@@ -60,7 +59,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     private final ComputerFamily family;
 
-    public TileComputerBase( TileEntityType<? extends TileGeneric> type, ComputerFamily family )
+    public TileComputerBase( BlockEntityType<? extends TileGeneric> type, ComputerFamily family )
     {
         super( type );
         this.family = family;
@@ -70,7 +69,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         if( m_instanceID >= 0 )
         {
-            if( !getWorld().isRemote ) ComputerCraft.serverComputerRegistry.remove( m_instanceID );
+            if( !getWorld().isClient ) ComputerCraft.serverComputerRegistry.remove( m_instanceID );
             m_instanceID = -1;
         }
     }
@@ -92,10 +91,10 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    public void remove()
+    public void markRemoved()
     {
         unload();
-        super.remove();
+        super.markRemoved();
     }
 
     protected boolean canNameWithTag( PlayerEntity player )
@@ -105,30 +104,30 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
-        ItemStack currentItem = player.getHeldItem( hand );
-        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasDisplayName() )
+        ItemStack currentItem = player.getStackInHand( hand );
+        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasCustomName() )
         {
             // Label to rename computer
-            if( !getWorld().isRemote )
+            if( !getWorld().isClient )
             {
-                setLabel( currentItem.getDisplayName().getString() );
-                currentItem.shrink( 1 );
+                setLabel( currentItem.getName().getString() );
+                currentItem.decrement( 1 );
             }
-            return ActionResultType.SUCCESS;
+            return ActionResult.SUCCESS;
         }
-        else if( !player.isCrouching() )
+        else if( !player.isInSneakingPose() )
         {
             // Regular right click to activate computer
-            if( !getWorld().isRemote && isUsable( player, false ) )
+            if( !getWorld().isClient && isUsable( player, false ) )
             {
                 createServerComputer().turnOn();
                 new ComputerContainerData( createServerComputer() ).open( player, this );
             }
-            return ActionResultType.SUCCESS;
+            return ActionResult.SUCCESS;
         }
-        return ActionResultType.PASS;
+        return ActionResult.PASS;
     }
 
     @Override
@@ -146,7 +145,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public void tick()
     {
-        if( !getWorld().isRemote )
+        if( !getWorld().isClient )
         {
             ServerComputer computer = createServerComputer();
             if( computer == null ) return;
@@ -179,20 +178,20 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT nbt )
+    public CompoundTag toTag( CompoundTag nbt )
     {
         // Save ID, label and power state
         if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
         if( label != null ) nbt.putString( NBT_LABEL, label );
         nbt.putBoolean( NBT_ON, m_on );
 
-        return super.write( nbt );
+        return super.toTag( nbt );
     }
 
     @Override
-    public void read( CompoundNBT nbt )
+    public void fromTag( CompoundTag nbt )
     {
-        super.read( nbt );
+        super.fromTag( nbt );
 
         // Load ID, label and power state
         m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
@@ -241,7 +240,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
      */
     protected static int getRedstoneInput( World world, BlockPos pos, Direction side )
     {
-        int power = world.getRedstonePower( pos, side );
+        int power = world.getEmittedRedstonePower( pos, side );
         if( power >= 15 ) return power;
 
         BlockState neighbour = world.getBlockState( pos );
@@ -252,7 +251,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     public void updateInput()
     {
-        if( getWorld() == null || getWorld().isRemote ) return;
+        if( getWorld() == null || getWorld().isClient ) return;
 
         // Update all sides
         ServerComputer computer = getServerComputer();
@@ -267,7 +266,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     private void updateInput( BlockPos neighbour )
     {
-        if( getWorld() == null || getWorld().isRemote ) return;
+        if( getWorld() == null || getWorld().isClient ) return;
 
         ServerComputer computer = getServerComputer();
         if( computer == null ) return;
@@ -316,7 +315,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final void setComputerID( int id )
     {
-        if( getWorld().isRemote || m_computerID == id ) return;
+        if( getWorld().isClient || m_computerID == id ) return;
 
         m_computerID = id;
         ServerComputer computer = getServerComputer();
@@ -327,7 +326,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final void setLabel( String label )
     {
-        if( getWorld().isRemote || Objects.equals( this.label, label ) ) return;
+        if( getWorld().isClient || Objects.equals( this.label, label ) ) return;
 
         this.label = label;
         ServerComputer computer = getServerComputer();
@@ -343,7 +342,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     public ServerComputer createServerComputer()
     {
-        if( getWorld().isRemote ) return null;
+        if( getWorld().isClient ) return null;
 
         boolean changed = false;
         if( m_instanceID < 0 )
@@ -368,13 +367,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     public ServerComputer getServerComputer()
     {
-        return getWorld().isRemote ? null : ComputerCraft.serverComputerRegistry.get( m_instanceID );
+        return getWorld().isClient ? null : ComputerCraft.serverComputerRegistry.get( m_instanceID );
     }
 
     // Networking stuff
 
     @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
         if( label != null ) nbt.putString( NBT_LABEL, label );
@@ -382,7 +381,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundNBT nbt )
+    protected void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
         label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
@@ -413,11 +412,11 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public ITextComponent getName()
+    public Text getName()
     {
         return hasCustomName()
-            ? new StringTextComponent( label )
-            : new TranslationTextComponent( getBlockState().getBlock().getTranslationKey() );
+            ? new LiteralText( label )
+            : new TranslatableText( getCachedState().getBlock().getTranslationKey() );
     }
 
     @Override
@@ -428,15 +427,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nullable
     @Override
-    public ITextComponent getCustomName()
+    public Text getCustomName()
     {
-        return hasCustomName() ? new StringTextComponent( label ) : null;
+        return hasCustomName() ? new LiteralText( label ) : null;
     }
 
     @Nonnull
     @Override
-    public ITextComponent getDisplayName()
+    public Text getDisplayName()
     {
-        return INameable.super.getDisplayName();
+        return Nameable.super.getDisplayName();
     }
 }

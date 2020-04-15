@@ -13,7 +13,7 @@ import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -95,7 +95,7 @@ public class TurtleDropCommand implements ITurtleCommand
         {
             // Drop the item into the world
             WorldUtil.dropItemStack( stack, world, oldPosition, direction );
-            world.playBroadcastSound( 1000, newPosition, 0 );
+            world.playGlobalEvent( 1000, newPosition, 0 );
             turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }

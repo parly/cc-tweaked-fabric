@@ -9,19 +9,19 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.DyeColor;
+import net.minecraft.util.DyeColor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.SpecialCraftingRecipe;
+import net.minecraft.recipe.SpecialRecipeSerializer;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public final class ColourableRecipe extends SpecialRecipe
+public final class ColourableRecipe extends SpecialCraftingRecipe
 {
-    private ColourableRecipe( ResourceLocation id )
+    private ColourableRecipe( Identifier id )
     {
         super( id );
     }
@@ -31,9 +31,9 @@ public final class ColourableRecipe extends SpecialRecipe
     {
         boolean hasColourable = false;
         boolean hasDye = false;
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getInvSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getInvStack( i );
             if( stack.isEmpty() ) continue;
 
             if( stack.getItem() instanceof IColouredItem )
@@ -56,15 +56,15 @@ public final class ColourableRecipe extends SpecialRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inv )
+    public ItemStack craft( @Nonnull CraftingInventory inv )
     {
         ItemStack colourable = ItemStack.EMPTY;
 
         ColourTracker tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getInvSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getInvStack( i );
 
             if( stack.isEmpty() ) continue;
 
@@ -87,17 +87,17 @@ public final class ColourableRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean fits( int x, int y )
     {
         return x >= 2 && y >= 2;
     }
 
     @Override
     @Nonnull
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( ColourableRecipe::new );
+    public static final RecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( ColourableRecipe::new );
 }

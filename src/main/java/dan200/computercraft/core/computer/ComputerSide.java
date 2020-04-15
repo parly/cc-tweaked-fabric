@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.core.computer;
 
-import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

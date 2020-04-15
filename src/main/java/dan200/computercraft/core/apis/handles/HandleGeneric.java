@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.optLong;
-import static dan200.computercraft.api.lua.ArgumentHelper.optString;
 
 public abstract class HandleGeneric implements ILuaObject
 {

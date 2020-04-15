@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.computer.core;
 
-import net.minecraft.inventory.container.Container;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

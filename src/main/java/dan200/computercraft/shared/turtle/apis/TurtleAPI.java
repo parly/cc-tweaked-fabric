@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class TurtleAPI implements ILuaAPI
 {
@@ -218,15 +217,15 @@ public class TurtleAPI implements ILuaAPI
             {
                 // getItemCount
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
-                ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
+                ItemStack stack = m_turtle.getInventory().getInvStack( slot );
                 return new Object[] { stack.getCount() };
             }
             case 15:
             {
                 // getItemSpace
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
-                ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
-                return new Object[] { stack.isEmpty() ? 64 : Math.min( stack.getMaxStackSize(), 64 ) - stack.getCount() };
+                ItemStack stack = m_turtle.getInventory().getInvStack( slot );
+                return new Object[] { stack.isEmpty() ? 64 : Math.min( stack.getMaxCount(), 64 ) - stack.getCount() };
             }
             case 16: // detect
                 return tryCommand( context, new TurtleDetectCommand( InteractDirection.FORWARD ) );
@@ -340,7 +339,7 @@ public class TurtleAPI implements ILuaAPI
                 //  on another thread. The obvious solution is to move this into a command, but some programs rely
                 //  on this having a 0-tick delay.
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
-                ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
+                ItemStack stack = m_turtle.getInventory().getInvStack( slot );
                 if( stack.isEmpty() ) return new Object[] { null };
 
                 Item item = stack.getItem();

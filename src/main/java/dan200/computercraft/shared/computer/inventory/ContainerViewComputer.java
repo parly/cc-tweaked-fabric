@@ -13,9 +13,9 @@ import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.container.ContainerType;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.text.TranslatableText;
 
 import javax.annotation.Nonnull;
 
@@ -51,13 +51,13 @@ public class ContainerViewComputer extends ContainerComputerBase implements ICon
         if( computer.getFamily() == ComputerFamily.COMMAND )
         {
             MinecraftServer server = player.getServer();
-            if( server == null || !server.isCommandBlockEnabled() )
+            if( server == null || !server.areCommandBlocksEnabled() )
             {
                 return false;
             }
-            else if( !player.canUseCommandBlock() )
+            else if( !player.isCreativeLevelTwoOp() )
             {
-                player.sendStatusMessage( new TranslationTextComponent( "advMode.notAllowed" ), false );
+                player.addChatMessage( new TranslatableText( "advMode.notAllowed" ), false );
                 return false;
             }
         }

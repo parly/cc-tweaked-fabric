@@ -9,7 +9,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -36,7 +36,7 @@ public class TurtleDetectCommand implements ITurtleCommand
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.offset( direction );
 
-        if( !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isAirBlock( newPosition ) )
+        if( !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isAir( newPosition ) )
         {
             return TurtleCommandResult.success();
         }

@@ -11,49 +11,51 @@ import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.block.Block.Settings;
+
 public class BlockMonitor extends BlockGeneric
 {
-    public static final DirectionProperty ORIENTATION = DirectionProperty.create( "orientation",
+    public static final DirectionProperty ORIENTATION = DirectionProperty.of( "orientation",
         Direction.UP, Direction.DOWN, Direction.NORTH );
 
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
-    static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
+    static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of( "state", MonitorEdgeState.class );
 
-    public BlockMonitor( Properties settings, NamedTileEntityType<? extends TileGeneric> type )
+    public BlockMonitor( Settings settings, NamedTileEntityType<? extends TileGeneric> type )
     {
         super( settings, type );
         // TODO: Test underwater - do we need isSolid at all?
-        setDefaultState( getStateContainer().getBaseState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( ORIENTATION, Direction.NORTH )
             .with( FACING, Direction.NORTH )
             .with( STATE, MonitorEdgeState.NONE ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( ORIENTATION, FACING, STATE );
     }
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement( BlockItemUseContext context )
+    public BlockState getPlacementState( ItemPlacementContext context )
     {
-        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().rotationPitch;
+        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().pitch;
         Direction orientation;
         if( pitch > 66.5f )
         {
@@ -71,17 +73,17 @@ public class BlockMonitor extends BlockGeneric
         }
 
         return getDefaultState()
-            .with( FACING, context.getPlacementHorizontalFacing().getOpposite() )
+            .with( FACING, context.getPlayerFacing().getOpposite() )
             .with( ORIENTATION, orientation );
     }
 
     @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack )
+    public void onPlaced( World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack )
     {
-        super.onBlockPlacedBy( world, pos, blockState, livingEntity, itemStack );
+        super.onPlaced( world, pos, blockState, livingEntity, itemStack );
 
-        TileEntity entity = world.getTileEntity( pos );
-        if( entity instanceof TileMonitor && !world.isRemote )
+        BlockEntity entity = world.getBlockEntity( pos );
+        if( entity instanceof TileMonitor && !world.isClient )
         {
             TileMonitor monitor = (TileMonitor) entity;
             monitor.contractNeighbours();

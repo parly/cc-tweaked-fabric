@@ -7,16 +7,15 @@ package dan200.computercraft.shared.network.container;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.container.Container;
+import net.minecraft.container.ContainerType;
+import net.minecraft.container.NameableContainerFactory;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -25,14 +24,14 @@ import java.util.function.Function;
  */
 public interface ContainerData
 {
-    void toBytes( PacketBuffer buf );
+    void toBytes( PacketByteBuf buf );
 
-    default void open( PlayerEntity player, INamedContainerProvider owner )
+    default void open( PlayerEntity player, NameableContainerFactory owner )
     {
         NetworkHooks.openGui( (ServerPlayerEntity) player, owner, this::toBytes );
     }
 
-    static <C extends Container, T extends ContainerData> ContainerType<C> toType( Function<PacketBuffer, T> reader, Factory<C, T> factory )
+    static <C extends Container, T extends ContainerData> ContainerType<C> toType( Function<PacketByteBuf, T> reader, Factory<C, T> factory )
     {
         return IForgeContainerType.create( ( id, player, data ) -> factory.create( id, player, reader.apply( data ) ) );
     }

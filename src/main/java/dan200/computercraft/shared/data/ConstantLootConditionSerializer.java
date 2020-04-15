@@ -8,34 +8,34 @@ package dan200.computercraft.shared.data;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.loot.conditions.ILootCondition;
+import net.minecraft.util.Identifier;
+import net.minecraft.loot.condition.LootCondition;
 
 import javax.annotation.Nonnull;
 
-public final class ConstantLootConditionSerializer<T extends ILootCondition> extends ILootCondition.AbstractSerializer<T>
+public final class ConstantLootConditionSerializer<T extends LootCondition> extends LootCondition.Factory<T>
 {
     private final T instance;
 
-    private ConstantLootConditionSerializer( ResourceLocation id, Class<T> klass, T instance )
+    private ConstantLootConditionSerializer( Identifier id, Class<T> klass, T instance )
     {
         super( id, klass );
         this.instance = instance;
     }
 
-    public static <T extends ILootCondition> ILootCondition.AbstractSerializer<T> of( ResourceLocation id, Class<T> klass, T instance )
+    public static <T extends LootCondition> LootCondition.Factory<T> of( Identifier id, Class<T> klass, T instance )
     {
         return new ConstantLootConditionSerializer<>( id, klass, instance );
     }
 
     @Override
-    public void serialize( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
+    public void toJson( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
     {
     }
 
     @Nonnull
     @Override
-    public T deserialize( @Nonnull JsonObject json, @Nonnull JsonDeserializationContext context )
+    public T fromJson( @Nonnull JsonObject json, @Nonnull JsonDeserializationContext context )
     {
         return instance;
     }

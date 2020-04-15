@@ -5,23 +5,23 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface DefaultSidedInventory extends DefaultInventory, ISidedInventory
+public interface DefaultSidedInventory extends DefaultInventory, SidedInventory
 {
     @Override
-    default boolean canInsertItem( int slot, @Nonnull ItemStack stack, @Nullable Direction side )
+    default boolean canInsertInvStack( int slot, @Nonnull ItemStack stack, @Nullable Direction side )
     {
-        return isItemValidForSlot( slot, stack );
+        return isValidInvStack( slot, stack );
     }
 
     @Override
-    default boolean canExtractItem( int slot, @Nonnull ItemStack stack, @Nonnull Direction side )
+    default boolean canExtractInvStack( int slot, @Nonnull ItemStack stack, @Nonnull Direction side )
     {
         return true;
     }

@@ -7,7 +7,7 @@ package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.PacketByteBuf;
 
 public class ComputerContainerData implements ContainerData
 {
@@ -20,17 +20,17 @@ public class ComputerContainerData implements ContainerData
         this.family = computer.getFamily();
     }
 
-    public ComputerContainerData( PacketBuffer buf )
+    public ComputerContainerData( PacketByteBuf buf )
     {
         this.id = buf.readInt();
-        this.family = buf.readEnumValue( ComputerFamily.class );
+        this.family = buf.readEnumConstant( ComputerFamily.class );
     }
 
     @Override
-    public void toBytes( PacketBuffer buf )
+    public void toBytes( PacketByteBuf buf )
     {
         buf.writeInt( id );
-        buf.writeEnumValue( family );
+        buf.writeEnumConstant( family );
     }
 
     public int getInstanceId()

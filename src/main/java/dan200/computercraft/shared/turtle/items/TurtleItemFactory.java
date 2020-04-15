@@ -11,7 +11,7 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 
@@ -37,7 +37,7 @@ public final class TurtleItemFactory
     }
 
     @Nonnull
-    public static ItemStack create( int id, String label, int colour, ComputerFamily family, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay )
+    public static ItemStack create( int id, String label, int colour, ComputerFamily family, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, Identifier overlay )
     {
         switch( family )
         {

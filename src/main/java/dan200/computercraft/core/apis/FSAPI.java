@@ -24,7 +24,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.function.Function;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public class FSAPI implements ILuaAPI
 {

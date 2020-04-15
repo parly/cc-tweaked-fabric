@@ -16,7 +16,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class TermAPI implements ILuaAPI
 {

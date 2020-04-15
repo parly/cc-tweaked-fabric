@@ -7,12 +7,12 @@ package dan200.computercraft.client.render;
 
 import dan200.computercraft.api.client.TransformedModel;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.TransformationMatrix;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
+import net.minecraft.client.util.math.Rotation3;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.util.math.Direction;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
@@ -21,17 +21,17 @@ import net.minecraftforge.client.model.pipeline.TRSRTransformer;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-public class TurtleMultiModel implements IBakedModel
+public class TurtleMultiModel implements BakedModel
 {
-    private final IBakedModel m_baseModel;
-    private final IBakedModel m_overlayModel;
-    private final TransformationMatrix m_generalTransform;
+    private final BakedModel m_baseModel;
+    private final BakedModel m_overlayModel;
+    private final Rotation3 m_generalTransform;
     private final TransformedModel m_leftUpgradeModel;
     private final TransformedModel m_rightUpgradeModel;
     private List<BakedQuad> m_generalQuads = null;
     private Map<Direction, List<BakedQuad>> m_faceQuads = new EnumMap<>( Direction.class );
 
-    public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, TransformationMatrix generalTransform, TransformedModel leftUpgradeModel, TransformedModel rightUpgradeModel )
+    public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, Rotation3 generalTransform, TransformedModel leftUpgradeModel, TransformedModel rightUpgradeModel )
     {
         // Get the models
         m_baseModel = baseModel;
@@ -77,12 +77,12 @@ public class TurtleMultiModel implements IBakedModel
         }
         if( m_leftUpgradeModel != null )
         {
-            TransformationMatrix upgradeTransform = m_generalTransform.compose( m_leftUpgradeModel.getMatrix() );
+            Rotation3 upgradeTransform = m_generalTransform.compose( m_leftUpgradeModel.getMatrix() );
             transformQuadsTo( quads, m_leftUpgradeModel.getModel().getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
         }
         if( m_rightUpgradeModel != null )
         {
-            TransformationMatrix upgradeTransform = m_generalTransform.compose( m_rightUpgradeModel.getMatrix() );
+            Rotation3 upgradeTransform = m_generalTransform.compose( m_rightUpgradeModel.getMatrix() );
             transformQuadsTo( quads, m_rightUpgradeModel.getModel().getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
         }
         quads.trimToSize();
@@ -90,53 +90,53 @@ public class TurtleMultiModel implements IBakedModel
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
-        return m_baseModel.isAmbientOcclusion();
+        return m_baseModel.useAmbientOcclusion();
     }
 
     @Override
-    public boolean isGui3d()
+    public boolean hasDepth()
     {
-        return m_baseModel.isGui3d();
+        return m_baseModel.hasDepth();
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isBuiltin()
     {
-        return m_baseModel.isBuiltInRenderer();
+        return m_baseModel.isBuiltin();
     }
 
     @Override
-    public boolean func_230044_c_()
+    public boolean isSideLit()
     {
-        return m_baseModel.func_230044_c_();
+        return m_baseModel.isSideLit();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public TextureAtlasSprite getParticleTexture()
+    public Sprite getSprite()
     {
-        return m_baseModel.getParticleTexture();
+        return m_baseModel.getSprite();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public net.minecraft.client.renderer.model.ItemCameraTransforms getItemCameraTransforms()
+    public minecraft.client.render.model.json.ModelTransformation getTransformation()
     {
-        return m_baseModel.getItemCameraTransforms();
+        return m_baseModel.getTransformation();
     }
 
     @Nonnull
     @Override
-    public ItemOverrideList getOverrides()
+    public ModelItemPropertyOverrideList getItemPropertyOverrides()
     {
-        return ItemOverrideList.EMPTY;
+        return ModelItemPropertyOverrideList.EMPTY;
     }
 
-    private void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> quads, TransformationMatrix transform )
+    private void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> quads, Rotation3 transform )
     {
         for( BakedQuad quad : quads )
         {

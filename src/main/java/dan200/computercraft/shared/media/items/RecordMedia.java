@@ -10,8 +10,8 @@ import dan200.computercraft.api.media.IMedia;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.TranslatableText;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper.UnableToAccessFieldException;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper.UnableToFindFieldException;
@@ -41,7 +41,7 @@ public final class RecordMedia implements IMedia
         Item item = stack.getItem();
         if( !(item instanceof MusicDiscItem) ) return null;
 
-        return new TranslationTextComponent( item.getTranslationKey() + ".desc" ).getString();
+        return new TranslatableText( item.getTranslationKey() + ".desc" ).getString();
     }
 
     @Override

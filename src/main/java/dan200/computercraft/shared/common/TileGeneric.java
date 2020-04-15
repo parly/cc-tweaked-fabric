@@ -7,21 +7,21 @@ package dan200.computercraft.shared.common;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.hit.BlockHitResult;
 
 import javax.annotation.Nonnull;
 
-public abstract class TileGeneric extends TileEntity
+public abstract class TileGeneric extends BlockEntity
 {
-    public TileGeneric( TileEntityType<? extends TileGeneric> type )
+    public TileGeneric( BlockEntityType<? extends TileGeneric> type )
     {
         super( type );
     }
@@ -34,14 +34,14 @@ public abstract class TileGeneric extends TileEntity
     {
         markDirty();
         BlockPos pos = getPos();
-        BlockState state = getBlockState();
-        getWorld().notifyBlockUpdate( pos, state, state, 3 );
+        BlockState state = getCachedState();
+        getWorld().updateListeners( pos, state, state, 3 );
     }
 
     @Nonnull
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
-        return ActionResultType.PASS;
+        return ActionResult.PASS;
     }
 
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
@@ -63,49 +63,49 @@ public abstract class TileGeneric extends TileEntity
 
     public boolean isUsable( PlayerEntity player, boolean ignoreRange )
     {
-        if( player == null || !player.isAlive() || getWorld().getTileEntity( getPos() ) != this ) return false;
+        if( player == null || !player.isAlive() || getWorld().getBlockEntity( getPos() ) != this ) return false;
         if( ignoreRange ) return true;
 
         double range = getInteractRange( player );
         BlockPos pos = getPos();
         return player.getEntityWorld() == getWorld() &&
-            player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
+            player.squaredDistanceTo( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
     }
 
-    protected void readDescription( @Nonnull CompoundNBT nbt )
+    protected void readDescription( @Nonnull CompoundTag nbt )
     {
     }
 
     @Nonnull
     @Override
-    public final SUpdateTileEntityPacket getUpdatePacket()
+    public final BlockEntityUpdateS2CPacket toUpdatePacket()
     {
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         writeDescription( nbt );
-        return new SUpdateTileEntityPacket( pos, 0, nbt );
+        return new BlockEntityUpdateS2CPacket( pos, 0, nbt );
     }
 
     @Override
-    public final void onDataPacket( NetworkManager net, SUpdateTileEntityPacket packet )
+    public final void onDataPacket( ClientConnection net, BlockEntityUpdateS2CPacket packet )
     {
-        if( packet.getTileEntityType() == 0 ) readDescription( packet.getNbtCompound() );
+        if( packet.getBlockEntityType() == 0 ) readDescription( packet.getCompoundTag() );
     }
 
     @Nonnull
     @Override
-    public CompoundNBT getUpdateTag()
+    public CompoundTag toInitialChunkDataTag()
     {
-        CompoundNBT tag = super.getUpdateTag();
+        CompoundTag tag = super.toInitialChunkDataTag();
         writeDescription( tag );
         return tag;
     }
 
     @Override
-    public void handleUpdateTag( @Nonnull CompoundNBT tag )
+    public void handleUpdateTag( @Nonnull CompoundTag tag )
     {
         super.handleUpdateTag( tag );
         readDescription( tag );

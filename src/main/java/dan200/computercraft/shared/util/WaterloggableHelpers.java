@@ -7,11 +7,10 @@ package dan200.computercraft.shared.util;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.IFluidState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 
@@ -22,7 +21,7 @@ import net.minecraft.world.IWorld;
  */
 public final class WaterloggableHelpers
 {
-    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
 
     private WaterloggableHelpers()
     {
@@ -34,9 +33,9 @@ public final class WaterloggableHelpers
      * @param state The current state
      * @return This waterlogged block's current fluid
      */
-    public static IFluidState getWaterloggedFluidState( BlockState state )
+    public static FluidState getWaterloggedFluidState( BlockState state )
     {
-        return state.get( WATERLOGGED ) ? Fluids.WATER.getStillFluidState( false ) : Fluids.EMPTY.getDefaultState();
+        return state.get( WATERLOGGED ) ? Fluids.WATER.getStill( false ) : Fluids.EMPTY.getDefaultState();
     }
 
     /**
@@ -50,12 +49,12 @@ public final class WaterloggableHelpers
     {
         if( state.get( WATERLOGGED ) )
         {
-            world.getPendingFluidTicks().scheduleTick( pos, Fluids.WATER, Fluids.WATER.getTickRate( world ) );
+            world.getFluidTickScheduler().schedule( pos, Fluids.WATER, Fluids.WATER.getTickRate( world ) );
         }
     }
 
-    public static boolean getWaterloggedStateForPlacement( BlockItemUseContext context )
+    public static boolean getWaterloggedStateForPlacement( ItemPlacementContext context )
     {
-        return context.getWorld().getFluidState( context.getPos() ).getFluid() == Fluids.WATER;
+        return context.getWorld().getFluidState( context.getBlockPos() ).getFluid() == Fluids.WATER;
     }
 }

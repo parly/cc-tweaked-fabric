@@ -5,15 +5,14 @@
  */
 package dan200.computercraft.shared.turtle.core;
 
-import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.state.IProperty;
-import net.minecraft.util.Direction;
+import net.minecraft.state.property.Property;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -57,9 +56,9 @@ public class TurtleInspectCommand implements ITurtleCommand
         table.put( "name", name );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getValues().entrySet() )
+        for( Map.Entry<Property<?>, ? extends Comparable<?>> entry : state.getEntries().entrySet() )
         {
-            IProperty<?> property = entry.getKey();
+            Property<?> property = entry.getKey();
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
         }
         table.put( "state", stateTable );
@@ -74,9 +73,9 @@ public class TurtleInspectCommand implements ITurtleCommand
     }
 
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static Object getPropertyValue( IProperty property, Comparable value )
+    private static Object getPropertyValue( Property property, Comparable value )
     {
         if( value instanceof String || value instanceof Number || value instanceof Boolean ) return value;
-        return property.getName( value );
+        return property.name( value );
     }
 }

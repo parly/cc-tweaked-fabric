@@ -30,8 +30,8 @@ import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.util.Identifier;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
@@ -193,10 +193,10 @@ public final class ComputerCraft
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        ReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getDataManager();
         try
         {
-            return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
+            return manager.getResource( new Identifier( domain, subPath ) ).getInputStream();
         }
         catch( IOException ignored )
         {

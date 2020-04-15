@@ -9,20 +9,19 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.TransformationMatrix;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.ContainerScreen;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.client.util.math.Rotation3;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
-import static dan200.computercraft.client.render.PrintoutRenderer.*;
 
 public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
 {
-    private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
+    private static final Matrix4f IDENTITY = Rotation3.identity().getMatrix();
 
     private final boolean m_book;
     private final int m_pages;
@@ -30,11 +29,11 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     private final TextBuffer[] m_colours;
     private int m_page;
 
-    public GuiPrintout( ContainerHeldItem container, PlayerInventory player, ITextComponent title )
+    public GuiPrintout( ContainerHeldItem container, PlayerInventory player, Text title )
     {
         super( container, player, title );
 
-        ySize = Y_SIZE;
+        containerHeight = Y_SIZE;
 
         String[] text = ItemPrintout.getText( container.getStack() );
         m_text = new TextBuffer[text.length];
@@ -91,16 +90,16 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     }
 
     @Override
-    public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    public void drawBackground( float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
         RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         RenderSystem.enableDepthTest();
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        drawBorder( IDENTITY, renderer, guiLeft, guiTop, getBlitOffset(), m_page, m_pages, m_book );
-        drawText( IDENTITY, renderer, guiLeft + X_TEXT_MARGIN, guiTop + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
-        renderer.finish();
+        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        drawBorder( IDENTITY, renderer, x, y, getBlitOffset(), m_page, m_pages, m_book );
+        drawText( IDENTITY, renderer, x + X_TEXT_MARGIN, y + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
+        renderer.draw();
     }
 
     @Override
@@ -112,6 +111,6 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
         setBlitOffset( getBlitOffset() + 1 );
 
         super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        drawMouseoverTooltip( mouseX, mouseY );
     }
 }

@@ -29,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
 
 public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements Closeable
 {

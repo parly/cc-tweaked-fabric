@@ -10,9 +10,9 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.util.NamedTileEntityType;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tickable;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -20,12 +20,12 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TileSpeaker extends TileGeneric implements ITickableTileEntity, IPeripheralTile
+public class TileSpeaker extends TileGeneric implements Tickable, IPeripheralTile
 {
     public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
 
     public static final NamedTileEntityType<TileSpeaker> FACTORY = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ),
+        new Identifier( ComputerCraft.MOD_ID, "speaker" ),
         TileSpeaker::new
     );
 

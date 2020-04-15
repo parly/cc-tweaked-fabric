@@ -17,7 +17,6 @@ import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.optString;
 
 class DiskDrivePeripheral implements IPeripheral
 {

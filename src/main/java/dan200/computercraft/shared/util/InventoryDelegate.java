@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -20,53 +20,53 @@ import java.util.Set;
  * and by other interfaces to have inventories which change their backing store.
  */
 @FunctionalInterface
-public interface InventoryDelegate extends IInventory
+public interface InventoryDelegate extends Inventory
 {
-    IInventory getInventory();
+    Inventory getInventory();
 
     @Override
-    default int getSizeInventory()
+    default int getInvSize()
     {
-        return getInventory().getSizeInventory();
+        return getInventory().getInvSize();
     }
 
     @Override
-    default boolean isEmpty()
+    default boolean isInvEmpty()
     {
-        return getInventory().isEmpty();
-    }
-
-    @Nonnull
-    @Override
-    default ItemStack getStackInSlot( int slot )
-    {
-        return getInventory().getStackInSlot( slot );
+        return getInventory().isInvEmpty();
     }
 
     @Nonnull
     @Override
-    default ItemStack decrStackSize( int slot, int count )
+    default ItemStack getInvStack( int slot )
     {
-        return getInventory().decrStackSize( slot, count );
+        return getInventory().getInvStack( slot );
     }
 
     @Nonnull
     @Override
-    default ItemStack removeStackFromSlot( int slot )
+    default ItemStack takeInvStack( int slot, int count )
     {
-        return getInventory().removeStackFromSlot( slot );
+        return getInventory().takeInvStack( slot, count );
+    }
+
+    @Nonnull
+    @Override
+    default ItemStack removeInvStack( int slot )
+    {
+        return getInventory().removeInvStack( slot );
     }
 
     @Override
-    default void setInventorySlotContents( int slot, ItemStack stack )
+    default void setInvStack( int slot, ItemStack stack )
     {
-        getInventory().setInventorySlotContents( slot, stack );
+        getInventory().setInvStack( slot, stack );
     }
 
     @Override
-    default int getInventoryStackLimit()
+    default int getInvMaxStackAmount()
     {
-        return getInventory().getInventoryStackLimit();
+        return getInventory().getInvMaxStackAmount();
     }
 
     @Override
@@ -76,27 +76,27 @@ public interface InventoryDelegate extends IInventory
     }
 
     @Override
-    default boolean isUsableByPlayer( @Nonnull PlayerEntity player )
+    default boolean canPlayerUseInv( @Nonnull PlayerEntity player )
     {
-        return getInventory().isUsableByPlayer( player );
+        return getInventory().canPlayerUseInv( player );
     }
 
     @Override
-    default void openInventory( @Nonnull PlayerEntity player )
+    default void onInvOpen( @Nonnull PlayerEntity player )
     {
-        getInventory().openInventory( player );
+        getInventory().onInvOpen( player );
     }
 
     @Override
-    default void closeInventory( @Nonnull PlayerEntity player )
+    default void onInvClose( @Nonnull PlayerEntity player )
     {
-        getInventory().closeInventory( player );
+        getInventory().onInvClose( player );
     }
 
     @Override
-    default boolean isItemValidForSlot( int slot, @Nonnull ItemStack stack )
+    default boolean isValidInvStack( int slot, @Nonnull ItemStack stack )
     {
-        return getInventory().isItemValidForSlot( slot, stack );
+        return getInventory().isValidInvStack( slot, stack );
     }
 
     @Override
@@ -106,14 +106,14 @@ public interface InventoryDelegate extends IInventory
     }
 
     @Override
-    default int count( @Nonnull Item stack )
+    default int countInInv( @Nonnull Item stack )
     {
-        return getInventory().count( stack );
+        return getInventory().countInInv( stack );
     }
 
     @Override
-    default boolean hasAny( @Nonnull Set<Item> set )
+    default boolean containsAnyInInv( @Nonnull Set<Item> set )
     {
-        return getInventory().hasAny( set );
+        return getInventory().containsAnyInInv( set );
     }
 }

@@ -11,17 +11,17 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -29,31 +29,33 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 
+import net.minecraft.item.Item.Settings;
+
 public class ItemTreasureDisk extends Item implements IMedia
 {
     private static final String NBT_TITLE = "Title";
     private static final String NBT_COLOUR = "Colour";
     private static final String NBT_SUB_PATH = "SubPath";
 
-    public ItemTreasureDisk( Properties settings )
+    public ItemTreasureDisk( Settings settings )
     {
         super( settings );
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> stacks )
+    public void appendStacks( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> stacks )
     {
     }
 
     @Override
-    public void addInformation( ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag tooltipOptions )
+    public void appendTooltip( ItemStack stack, @Nullable World world, List<Text> list, TooltipContext tooltipOptions )
     {
         String label = getTitle( stack );
-        if( !label.isEmpty() ) list.add( new StringTextComponent( label ) );
+        if( !label.isEmpty() ) list.add( new LiteralText( label ) );
     }
 
     @Override
-    public boolean doesSneakBypassUse( @Nonnull ItemStack stack, IWorldReader world, BlockPos pos, PlayerEntity player )
+    public boolean doesSneakBypassUse( @Nonnull ItemStack stack, WorldView world, BlockPos pos, PlayerEntity player )
     {
         return true;
     }
@@ -93,7 +95,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     public static ItemStack create( String subPath, int colourIndex )
     {
         ItemStack result = new ItemStack( ComputerCraft.Items.treasureDisk );
-        CompoundNBT nbt = result.getOrCreateTag();
+        CompoundTag nbt = result.getOrCreateTag();
         nbt.putString( NBT_SUB_PATH, subPath );
 
         int slash = subPath.indexOf( '/' );
@@ -120,20 +122,20 @@ public class ItemTreasureDisk extends Item implements IMedia
     @Nonnull
     private static String getTitle( @Nonnull ItemStack stack )
     {
-        CompoundNBT nbt = stack.getTag();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'alongtimeago' by dan200";
     }
 
     @Nonnull
     private static String getSubPath( @Nonnull ItemStack stack )
     {
-        CompoundNBT nbt = stack.getTag();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_SUB_PATH ) ? nbt.getString( NBT_SUB_PATH ) : "dan200/alongtimeago";
     }
 
     public static int getColour( @Nonnull ItemStack stack )
     {
-        CompoundNBT nbt = stack.getTag();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : Colour.BLUE.getHex();
     }
 }

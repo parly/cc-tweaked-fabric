@@ -16,6 +16,8 @@ import dan200.computercraft.core.tracking.TrackingField;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
+import dan200.computercraft.core.apis.IAPIEnvironment.IPeripheralChangeListener;
+
 /**
  * Represents the "environment" that a {@link Computer} exists in.
  *

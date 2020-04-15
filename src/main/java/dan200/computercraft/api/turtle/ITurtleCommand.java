@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.turtle;
 
-import dan200.computercraft.api.lua.ILuaContext;
 
 import javax.annotation.Nonnull;
 

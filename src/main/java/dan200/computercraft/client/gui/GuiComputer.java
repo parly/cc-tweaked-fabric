@@ -15,18 +15,18 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.Identifier;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 public final class GuiComputer<T extends ContainerComputerBase> extends ContainerScreen<T>
 {
-    public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
-    public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
-    public static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_command.png" );
-    public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_colour.png" );
+    public static final Identifier BACKGROUND_NORMAL = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
+    public static final Identifier BACKGROUND_ADVANCED = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
+    public static final Identifier BACKGROUND_COMMAND = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_command.png" );
+    public static final Identifier BACKGROUND_COLOUR = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_colour.png" );
 
     private final ComputerFamily m_family;
     private final ClientComputer m_computer;
@@ -37,7 +37,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     private WidgetWrapper terminalWrapper;
 
     private GuiComputer(
-        T container, PlayerInventory player, ITextComponent title, int termWidth, int termHeight
+        T container, PlayerInventory player, Text title, int termWidth, int termHeight
     )
     {
         super( container, player, title );
@@ -48,7 +48,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         terminal = null;
     }
 
-    public static GuiComputer<ContainerComputer> create( ContainerComputer container, PlayerInventory inventory, ITextComponent component )
+    public static GuiComputer<ContainerComputer> create( ContainerComputer container, PlayerInventory inventory, Text component )
     {
         return new GuiComputer<>(
             container, inventory, component,
@@ -56,7 +56,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         );
     }
 
-    public static GuiComputer<ContainerPocketComputer> createPocket( ContainerPocketComputer container, PlayerInventory inventory, ITextComponent component )
+    public static GuiComputer<ContainerPocketComputer> createPocket( ContainerPocketComputer container, PlayerInventory inventory, Text component )
     {
         return new GuiComputer<>(
             container, inventory, component,
@@ -64,7 +64,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         );
     }
 
-    public static GuiComputer<ContainerViewComputer> createView( ContainerViewComputer container, PlayerInventory inventory, ITextComponent component )
+    public static GuiComputer<ContainerViewComputer> createView( ContainerViewComputer container, PlayerInventory inventory, Text component )
     {
         return new GuiComputer<>(
             container, inventory, component,
@@ -76,18 +76,18 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     @Override
     protected void init()
     {
-        minecraft.keyboardListener.enableRepeatEvents( true );
+        minecraft.keyboard.enableRepeatEvents( true );
 
         int termPxWidth = m_termWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = m_termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        xSize = termPxWidth + 4 + 24;
-        ySize = termPxHeight + 4 + 24;
+        containerWidth = termPxWidth + 4 + 24;
+        containerHeight = termPxHeight + 4 + 24;
 
         super.init();
 
         terminal = new WidgetTerminal( minecraft, () -> m_computer, m_termWidth, m_termHeight, 2, 2, 2, 2 );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 12 + guiLeft, 2 + 12 + guiTop, termPxWidth, termPxHeight );
+        terminalWrapper = new WidgetWrapper( terminal, 2 + 12 + x, 2 + 12 + y, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
         setFocused( terminalWrapper );
@@ -99,7 +99,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         super.removed();
         children.remove( terminal );
         terminal = null;
-        minecraft.keyboardListener.enableRepeatEvents( false );
+        minecraft.keyboard.enableRepeatEvents( false );
     }
 
     @Override
@@ -122,7 +122,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     }
 
     @Override
-    public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    public void drawBackground( float partialTicks, int mouseX, int mouseY )
     {
         // Work out where to draw
         int startX = terminalWrapper.getX() - 2;
@@ -166,7 +166,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     {
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        drawMouseoverTooltip( mouseX, mouseY );
     }
 
     @Override

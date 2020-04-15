@@ -22,9 +22,6 @@ import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.util.Arrays;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.optBoolean;
-import static dan200.computercraft.core.apis.http.websocket.Websocket.CLOSE_EVENT;
-import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EVENT;
 
 public class WebsocketHandle implements ILuaObject, Closeable
 {

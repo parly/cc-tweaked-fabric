@@ -12,7 +12,6 @@ import dan200.computercraft.core.computer.ComputerSide;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class RedstoneAPI implements ILuaAPI
 {

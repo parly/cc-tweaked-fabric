@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.core.computer.ComputerSide;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 
 public final class DirectionUtil
 {
@@ -20,8 +20,8 @@ public final class DirectionUtil
 
         if( dir == front ) return ComputerSide.FRONT;
         if( dir == front.getOpposite() ) return ComputerSide.BACK;
-        if( dir == front.rotateYCCW() ) return ComputerSide.LEFT;
-        if( dir == front.rotateY() ) return ComputerSide.RIGHT;
+        if( dir == front.rotateYCounterclockwise() ) return ComputerSide.LEFT;
+        if( dir == front.rotateYClockwise() ) return ComputerSide.RIGHT;
         if( dir == Direction.UP ) return ComputerSide.TOP;
         return ComputerSide.BOTTOM;
     }

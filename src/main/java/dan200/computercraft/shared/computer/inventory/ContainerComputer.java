@@ -9,7 +9,7 @@ import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.network.container.ContainerData;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.container.ContainerType;
 
 public class ContainerComputer extends ContainerComputerBase
 {

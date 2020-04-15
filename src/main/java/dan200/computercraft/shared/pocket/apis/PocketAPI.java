@@ -17,7 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.DefaultedList;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import javax.annotation.Nonnull;
@@ -64,10 +64,10 @@ public class PocketAPI implements ILuaAPI
 
                     // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
                     // one. We start from the position the item is currently in and loop round to the start.
-                    IPocketUpgrade newUpgrade = findUpgrade( inventory.mainInventory, inventory.currentItem, previousUpgrade );
+                    IPocketUpgrade newUpgrade = findUpgrade( inventory.main, inventory.selectedSlot, previousUpgrade );
                     if( newUpgrade == null )
                     {
-                        newUpgrade = findUpgrade( inventory.offHandInventory, 0, previousUpgrade );
+                        newUpgrade = findUpgrade( inventory.offHand, 0, previousUpgrade );
                     }
                     if( newUpgrade == null ) return new Object[] { false, "Cannot find a valid upgrade" };
 
@@ -77,10 +77,10 @@ public class PocketAPI implements ILuaAPI
                         ItemStack stack = previousUpgrade.getCraftingItem();
                         if( !stack.isEmpty() )
                         {
-                            stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.currentItem );
+                            stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.selectedSlot );
                             if( !stack.isEmpty() )
                             {
-                                WorldUtil.dropItemStack( stack, player.getEntityWorld(), player.getPositionVec() );
+                                WorldUtil.dropItemStack( stack, player.getEntityWorld(), player.getPos() );
                             }
                         }
                     }
@@ -108,10 +108,10 @@ public class PocketAPI implements ILuaAPI
                     ItemStack stack = previousUpgrade.getCraftingItem();
                     if( !stack.isEmpty() )
                     {
-                        stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.currentItem );
+                        stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.selectedSlot );
                         if( stack.isEmpty() )
                         {
-                            WorldUtil.dropItemStack( stack, player.getEntityWorld(), player.getPositionVec() );
+                            WorldUtil.dropItemStack( stack, player.getEntityWorld(), player.getPos() );
                         }
                     }
 
@@ -122,7 +122,7 @@ public class PocketAPI implements ILuaAPI
         }
     }
 
-    private static IPocketUpgrade findUpgrade( NonNullList<ItemStack> inv, int start, IPocketUpgrade previous )
+    private static IPocketUpgrade findUpgrade( DefaultedList<ItemStack> inv, int start, IPocketUpgrade previous )
     {
         for( int i = 0; i < inv.size(); i++ )
         {
@@ -135,7 +135,7 @@ public class PocketAPI implements ILuaAPI
                 {
                     // Consume an item from this stack and exit the loop
                     invStack = invStack.copy();
-                    invStack.shrink( 1 );
+                    invStack.decrement( 1 );
                     inv.set( (i + start) % inv.size(), invStack.isEmpty() ? ItemStack.EMPTY : invStack );
 
                     return newUpgrade;

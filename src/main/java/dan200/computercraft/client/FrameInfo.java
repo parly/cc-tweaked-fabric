@@ -6,12 +6,12 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
-import net.minecraftforge.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT )
 public final class FrameInfo
 {
     private static int tick;

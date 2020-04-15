@@ -11,11 +11,11 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
-import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Direction;
+import net.minecraft.predicate.entity.EntityPredicates;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -93,17 +93,17 @@ public class TurtleSuckCommand implements ITurtleCommand
         else
         {
             // Suck up loose items off the ground
-            AxisAlignedBB aabb = new AxisAlignedBB(
+            Box aabb = new Box(
                 blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(),
                 blockPosition.getX() + 1.0, blockPosition.getY() + 1.0, blockPosition.getZ() + 1.0
             );
-            List<ItemEntity> list = world.getEntitiesWithinAABB( ItemEntity.class, aabb, EntityPredicates.IS_ALIVE );
+            List<ItemEntity> list = world.getEntities( ItemEntity.class, aabb, EntityPredicates.VALID_ENTITY );
             if( list.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
 
             for( ItemEntity entity : list )
             {
                 // Suck up the item
-                ItemStack stack = entity.getItem().copy();
+                ItemStack stack = entity.getStack().copy();
 
                 ItemStack storeStack;
                 ItemStack leaveStack;
@@ -128,20 +128,20 @@ public class TurtleSuckCommand implements ITurtleCommand
                     }
                     else if( remainder.isEmpty() )
                     {
-                        entity.setItem( leaveStack );
+                        entity.setStack( leaveStack );
                     }
                     else if( leaveStack.isEmpty() )
                     {
-                        entity.setItem( remainder );
+                        entity.setStack( remainder );
                     }
                     else
                     {
-                        leaveStack.grow( remainder.getCount() );
-                        entity.setItem( leaveStack );
+                        leaveStack.increment( remainder.getCount() );
+                        entity.setStack( leaveStack );
                     }
 
                     // Play fx
-                    world.playBroadcastSound( 1000, turtlePosition, 0 ); // BLOCK_DISPENSER_DISPENSE
+                    world.playGlobalEvent( 1000, turtlePosition, 0 ); // BLOCK_DISPENSER_DISPENSE
                     turtle.playAnimation( TurtleAnimation.WAIT );
                     return TurtleCommandResult.success();
                 }

@@ -12,11 +12,11 @@ import dan200.computercraft.api.turtle.TurtleVerb;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -24,17 +24,17 @@ import javax.annotation.Nonnull;
 
 public class TurtleHoe extends TurtleTool
 {
-    public TurtleHoe( ResourceLocation id, String adjective, Item item )
+    public TurtleHoe( Identifier id, String adjective, Item item )
     {
         super( id, adjective, item );
     }
 
-    public TurtleHoe( ResourceLocation id, Item item )
+    public TurtleHoe( Identifier id, Item item )
     {
         super( id, item );
     }
 
-    public TurtleHoe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
+    public TurtleHoe( Identifier id, ItemStack craftItem, ItemStack toolItem )
     {
         super( id, craftItem, toolItem );
     }
@@ -45,12 +45,12 @@ public class TurtleHoe extends TurtleTool
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
         Material material = state.getMaterial();
-        return material == Material.PLANTS ||
+        return material == Material.PLANT ||
             material == Material.CACTUS ||
-            material == Material.GOURD ||
+            material == Material.PUMPKIN ||
             material == Material.LEAVES ||
-            material == Material.OCEAN_PLANT ||
-            material == Material.TALL_PLANTS;
+            material == Material.UNDERWATER_PLANT ||
+            material == Material.REPLACEABLE_PLANT;
     }
 
     @Nonnull

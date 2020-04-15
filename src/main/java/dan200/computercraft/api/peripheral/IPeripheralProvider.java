@@ -5,8 +5,7 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 

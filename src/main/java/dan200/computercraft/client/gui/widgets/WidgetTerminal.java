@@ -9,22 +9,20 @@ import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.IComputer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.util.SharedConstants;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.Element;
+import net.minecraft.SharedConstants;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.BitSet;
 import java.util.function.Supplier;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 
-public class WidgetTerminal implements IGuiEventListener
+public class WidgetTerminal implements Element
 {
     private static final float TERMINATE_TIME = 0.5f;
 
-    private final Minecraft client;
+    private final MinecraftClient client;
 
     private boolean focused;
 
@@ -47,7 +45,7 @@ public class WidgetTerminal implements IGuiEventListener
 
     private final BitSet keysDown = new BitSet( 256 );
 
-    public WidgetTerminal( Minecraft client, Supplier<ClientComputer> computer, int termWidth, int termHeight, int leftMargin, int rightMargin, int topMargin, int bottomMargin )
+    public WidgetTerminal( MinecraftClient client, Supplier<ClientComputer> computer, int termWidth, int termHeight, int leftMargin, int rightMargin, int topMargin, int bottomMargin )
     {
         this.client = client;
         this.computer = computer;
@@ -91,7 +89,7 @@ public class WidgetTerminal implements IGuiEventListener
 
                 case GLFW.GLFW_KEY_V:
                     // Ctrl+V for paste
-                    String clipboard = client.keyboardListener.getClipboardString();
+                    String clipboard = client.keyboard.getClipboard();
                     if( clipboard != null )
                     {
                         // Clip to the first occurrence of \r or \n
@@ -111,7 +109,7 @@ public class WidgetTerminal implements IGuiEventListener
                         }
 
                         // Filter the string
-                        clipboard = SharedConstants.filterAllowedCharacters( clipboard );
+                        clipboard = SharedConstants.stripInvalidChars( clipboard );
                         if( !clipboard.isEmpty() )
                         {
                             // Clip to 512 characters and queue the event

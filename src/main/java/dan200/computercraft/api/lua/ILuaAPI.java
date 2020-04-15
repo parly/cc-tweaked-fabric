@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 
 /**
  * Represents a {@link ILuaObject} which is stored as a global variable on computer startup.

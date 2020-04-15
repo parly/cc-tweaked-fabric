@@ -11,39 +11,41 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import net.minecraft.item.Item.Settings;
+
 public abstract class ItemComputerBase extends BlockItem implements IComputerItem, IMedia
 {
     private final ComputerFamily family;
 
-    public ItemComputerBase( BlockComputerBase<?> block, Properties settings )
+    public ItemComputerBase( BlockComputerBase<?> block, Settings settings )
     {
         super( block, settings );
         family = block.getFamily();
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
+    public void appendTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Text> list, @Nonnull TooltipContext options )
     {
         if( options.isAdvanced() )
         {
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .applyTextStyle( TextFormatting.GRAY ) );
+                list.add( new TranslatableText( "gui.computercraft.tooltip.computer_id", id )
+                    .formatted( Formatting.GRAY ) );
             }
         }
     }
@@ -67,11 +69,11 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setCustomName( new LiteralText( label ) );
         }
         else
         {
-            stack.clearCustomName();
+            stack.removeCustomName();
         }
         return true;
     }

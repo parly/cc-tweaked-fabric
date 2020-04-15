@@ -24,10 +24,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_BLACKLIST;
-import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_WHITELIST;
-import static net.minecraftforge.common.ForgeConfigSpec.Builder;
-import static net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+
+import net.minecraftforge.common.ForgeConfigSpec.Builder;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class Config

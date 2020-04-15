@@ -8,20 +8,17 @@ package dan200.computercraft.api;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
-import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
-import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -217,7 +214,7 @@ public final class ComputerCraftAPI
      * @see IWiredElement#getNode()
      */
     @Nonnull
-    public static LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public static LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return getInstance().getWiredElementAt( world, pos, side );
     }
@@ -274,6 +271,6 @@ public final class ComputerCraftAPI
         IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );
 
         @Nonnull
-        LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side );
+        LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side );
     }
 }

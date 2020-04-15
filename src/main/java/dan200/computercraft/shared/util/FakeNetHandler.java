@@ -9,16 +9,60 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.network.*;
-import net.minecraft.network.play.ServerPlayNetHandler;
-import net.minecraft.network.play.client.*;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.text.Text;
 import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
-public class FakeNetHandler extends ServerPlayNetHandler
+import net.minecraft.network.listener.PacketListener;
+import net.minecraft.network.packet.c2s.play.AdvancementTabC2SPacket;
+import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
+import net.minecraft.network.packet.c2s.play.BookUpdateC2SPacket;
+import net.minecraft.network.packet.c2s.play.ButtonClickC2SPacket;
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClickWindowC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClientSettingsC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket;
+import net.minecraft.network.packet.c2s.play.ConfirmGuiActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.CraftRequestC2SPacket;
+import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.play.GuiCloseC2SPacket;
+import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
+import net.minecraft.network.packet.c2s.play.KeepAliveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PickFromInventoryC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.QueryBlockNbtC2SPacket;
+import net.minecraft.network.packet.c2s.play.QueryEntityNbtC2SPacket;
+import net.minecraft.network.packet.c2s.play.RecipeBookDataC2SPacket;
+import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
+import net.minecraft.network.packet.c2s.play.RequestCommandCompletionsC2SPacket;
+import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
+import net.minecraft.network.packet.c2s.play.SelectVillagerTradeC2SPacket;
+import net.minecraft.network.packet.c2s.play.SpectatorTeleportC2SPacket;
+import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateBeaconC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateCommandBlockC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateCommandBlockMinecartC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateDifficultyC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateDifficultyLockC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateJigsawC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdatePlayerAbilitiesC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateSignC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket;
+import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
+
+public class FakeNetHandler extends ServerPlayNetworkHandler
 {
     public FakeNetHandler( @Nonnull FakePlayer player )
     {
@@ -31,248 +75,248 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void disconnect( @Nonnull ITextComponent reason )
+    public void disconnect( @Nonnull Text reason )
     {
     }
 
     @Override
-    public void onDisconnect( ITextComponent reason )
+    public void onDisconnected( Text reason )
     {
     }
 
     @Override
-    public void sendPacket( @Nonnull IPacket<?> packet )
+    public void sendPacket( @Nonnull Packet<?> packet )
     {
     }
 
     @Override
-    public void sendPacket( @Nonnull IPacket<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
+    public void sendPacket( @Nonnull Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
     {
     }
 
     @Override
-    public void processInput( CInputPacket packet )
+    public void onPlayerInput( PlayerInputC2SPacket packet )
     {
     }
 
     @Override
-    public void processVehicleMove( CMoveVehiclePacket packet )
+    public void onVehicleMove( VehicleMoveC2SPacket packet )
     {
     }
 
     @Override
-    public void processConfirmTeleport( CConfirmTeleportPacket packet )
+    public void onTeleportConfirm( TeleportConfirmC2SPacket packet )
     {
     }
 
     @Override
-    public void handleRecipeBookUpdate( CRecipeInfoPacket packet )
+    public void onRecipeBookData( RecipeBookDataC2SPacket packet )
     {
     }
 
     @Override
-    public void handleSeenAdvancements( CSeenAdvancementsPacket packet )
+    public void onAdvancementTab( AdvancementTabC2SPacket packet )
     {
     }
 
     @Override
-    public void processTabComplete( CTabCompletePacket packet )
+    public void onRequestCommandCompletions( RequestCommandCompletionsC2SPacket packet )
     {
     }
 
     @Override
-    public void processUpdateCommandBlock( @Nonnull CUpdateCommandBlockPacket packet )
+    public void onUpdateCommandBlock( @Nonnull UpdateCommandBlockC2SPacket packet )
     {
     }
 
     @Override
-    public void processUpdateCommandMinecart( @Nonnull CUpdateMinecartCommandBlockPacket packet )
+    public void onUpdateCommandBlockMinecart( @Nonnull UpdateCommandBlockMinecartC2SPacket packet )
     {
     }
 
     @Override
-    public void processPickItem( CPickItemPacket packet )
+    public void onPickFromInventory( PickFromInventoryC2SPacket packet )
     {
     }
 
     @Override
-    public void processRenameItem( @Nonnull CRenameItemPacket packet )
+    public void onRenameItem( @Nonnull RenameItemC2SPacket packet )
     {
     }
 
     @Override
-    public void processUpdateBeacon( @Nonnull CUpdateBeaconPacket packet )
+    public void onUpdateBeacon( @Nonnull UpdateBeaconC2SPacket packet )
     {
     }
 
     @Override
-    public void processUpdateStructureBlock( @Nonnull CUpdateStructureBlockPacket packet )
+    public void onStructureBlockUpdate( @Nonnull UpdateStructureBlockC2SPacket packet )
     {
     }
 
     @Override
-    public void func_217262_a( @Nonnull CUpdateJigsawBlockPacket packet )
+    public void onJigsawUpdate( @Nonnull UpdateJigsawC2SPacket packet )
     {
     }
 
     @Override
-    public void processSelectTrade( CSelectTradePacket packet )
+    public void onVillagerTradeSelect( SelectVillagerTradeC2SPacket packet )
     {
     }
 
     @Override
-    public void processEditBook( CEditBookPacket packet )
+    public void onBookUpdate( BookUpdateC2SPacket packet )
     {
     }
 
     @Override
-    public void processNBTQueryEntity( @Nonnull CQueryEntityNBTPacket packet )
+    public void onQueryEntityNbt( @Nonnull QueryEntityNbtC2SPacket packet )
     {
     }
 
     @Override
-    public void processNBTQueryBlockEntity( @Nonnull CQueryTileEntityNBTPacket packet )
+    public void onQueryBlockNbt( @Nonnull QueryBlockNbtC2SPacket packet )
     {
     }
 
     @Override
-    public void processPlayer( CPlayerPacket packet )
+    public void onPlayerMove( PlayerMoveC2SPacket packet )
     {
     }
 
     @Override
-    public void processPlayerDigging( CPlayerDiggingPacket packet )
+    public void onPlayerAction( PlayerActionC2SPacket packet )
     {
     }
 
     @Override
-    public void processTryUseItemOnBlock( CPlayerTryUseItemOnBlockPacket packet )
+    public void onPlayerInteractBlock( PlayerInteractBlockC2SPacket packet )
     {
     }
 
     @Override
-    public void processTryUseItem( CPlayerTryUseItemPacket packet )
+    public void onPlayerInteractItem( PlayerInteractItemC2SPacket packet )
     {
     }
 
     @Override
-    public void handleSpectate( @Nonnull CSpectatePacket packet )
+    public void onSpectatorTeleport( @Nonnull SpectatorTeleportC2SPacket packet )
     {
     }
 
     @Override
-    public void handleResourcePackStatus( CResourcePackStatusPacket packet )
+    public void onResourcePackStatus( ResourcePackStatusC2SPacket packet )
     {
     }
 
     @Override
-    public void processSteerBoat( @Nonnull CSteerBoatPacket packet )
+    public void onBoatPaddleState( @Nonnull BoatPaddleStateC2SPacket packet )
     {
     }
 
     @Override
-    public void processHeldItemChange( CHeldItemChangePacket packet )
+    public void onUpdateSelectedSlot( UpdateSelectedSlotC2SPacket packet )
     {
     }
 
     @Override
-    public void processChatMessage( @Nonnull CChatMessagePacket packet )
+    public void onChatMessage( @Nonnull ChatMessageC2SPacket packet )
     {
     }
 
     @Override
-    public void handleAnimation( CAnimateHandPacket packet )
+    public void onHandSwing( HandSwingC2SPacket packet )
     {
     }
 
     @Override
-    public void processEntityAction( CEntityActionPacket packet )
+    public void onClientCommand( ClientCommandC2SPacket packet )
     {
     }
 
     @Override
-    public void processUseEntity( CUseEntityPacket packet )
+    public void onPlayerInteractEntity( PlayerInteractEntityC2SPacket packet )
     {
     }
 
     @Override
-    public void processClientStatus( CClientStatusPacket packet )
+    public void onClientStatus( ClientStatusC2SPacket packet )
     {
     }
 
     @Override
-    public void processCloseWindow( @Nonnull CCloseWindowPacket packet )
+    public void onGuiClose( @Nonnull GuiCloseC2SPacket packet )
     {
     }
 
     @Override
-    public void processClickWindow( CClickWindowPacket packet )
+    public void onClickWindow( ClickWindowC2SPacket packet )
     {
     }
 
     @Override
-    public void processPlaceRecipe( @Nonnull CPlaceRecipePacket packet )
+    public void onCraftRequest( @Nonnull CraftRequestC2SPacket packet )
     {
     }
 
     @Override
-    public void processEnchantItem( CEnchantItemPacket packet )
+    public void onButtonClick( ButtonClickC2SPacket packet )
     {
     }
 
     @Override
-    public void processCreativeInventoryAction( @Nonnull CCreativeInventoryActionPacket packet )
+    public void onCreativeInventoryAction( @Nonnull CreativeInventoryActionC2SPacket packet )
     {
     }
 
     @Override
-    public void processConfirmTransaction( CConfirmTransactionPacket packet )
+    public void onConfirmTransaction( ConfirmGuiActionC2SPacket packet )
     {
     }
 
     @Override
-    public void processUpdateSign( CUpdateSignPacket packet )
+    public void onSignUpdate( UpdateSignC2SPacket packet )
     {
     }
 
     @Override
-    public void processKeepAlive( @Nonnull CKeepAlivePacket packet )
+    public void onKeepAlive( @Nonnull KeepAliveC2SPacket packet )
     {
     }
 
     @Override
-    public void processPlayerAbilities( CPlayerAbilitiesPacket packet )
+    public void onPlayerAbilities( UpdatePlayerAbilitiesC2SPacket packet )
     {
     }
 
     @Override
-    public void processClientSettings( @Nonnull CClientSettingsPacket packet )
+    public void onClientSettings( @Nonnull ClientSettingsC2SPacket packet )
     {
     }
 
     @Override
-    public void processCustomPayload( CCustomPayloadPacket packet )
+    public void onCustomPayload( CustomPayloadC2SPacket packet )
     {
     }
 
     @Override
-    public void func_217263_a( @Nonnull CSetDifficultyPacket packet )
+    public void onUpdateDifficulty( @Nonnull UpdateDifficultyC2SPacket packet )
     {
     }
 
     @Override
-    public void func_217261_a( @Nonnull CLockDifficultyPacket packet )
+    public void onUpdateDifficultyLock( @Nonnull UpdateDifficultyLockC2SPacket packet )
     {
     }
 
-    private static class FakeNetworkManager extends NetworkManager
+    private static class FakeNetworkManager extends ClientConnection
     {
-        private INetHandler handler;
-        private ITextComponent closeReason;
+        private PacketListener handler;
+        private Text closeReason;
 
         FakeNetworkManager()
         {
-            super( PacketDirection.CLIENTBOUND );
+            super( NetworkSide.CLIENTBOUND );
         }
 
         @Override
@@ -281,7 +325,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        public void setConnectionState( @Nonnull ProtocolType state )
+        public void setState( @Nonnull NetworkState state )
         {
         }
 
@@ -296,23 +340,23 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        protected void channelRead0( ChannelHandlerContext context, @Nonnull IPacket<?> packet )
+        protected void channelRead0( ChannelHandlerContext context, @Nonnull Packet<?> packet )
         {
         }
 
         @Override
-        public void setNetHandler( INetHandler handler )
+        public void setPacketListener( PacketListener handler )
         {
             this.handler = handler;
         }
 
         @Override
-        public void sendPacket( @Nonnull IPacket<?> packet )
+        public void send( @Nonnull Packet<?> packet )
         {
         }
 
         @Override
-        public void sendPacket( @Nonnull IPacket<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
+        public void send( @Nonnull Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
         {
         }
 
@@ -322,26 +366,26 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        public void closeChannel( @Nonnull ITextComponent message )
+        public void disconnect( @Nonnull Text message )
         {
             this.closeReason = message;
         }
 
         @Override
-        public void enableEncryption( SecretKey key )
+        public void setupEncryption( SecretKey key )
         {
         }
 
         @Nonnull
         @Override
-        public INetHandler getNetHandler()
+        public PacketListener getPacketListener()
         {
             return handler;
         }
 
         @Nullable
         @Override
-        public ITextComponent getExitMessage()
+        public Text getDisconnectReason()
         {
             return closeReason;
         }

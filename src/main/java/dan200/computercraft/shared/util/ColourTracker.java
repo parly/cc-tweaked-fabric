@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.item.crafting.ArmorDyeRecipe;
 
 /**
  * A reimplementation of the colour system in {@link ArmorDyeRecipe}, but

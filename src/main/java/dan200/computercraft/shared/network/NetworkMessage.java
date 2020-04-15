@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.network;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -25,7 +25,7 @@ public interface NetworkMessage
      *
      * @param buf The buffer to write data to.
      */
-    void toBytes( @Nonnull PacketBuffer buf );
+    void toBytes( @Nonnull PacketByteBuf buf );
 
     /**
      * Read this packet from a buffer.
@@ -34,7 +34,7 @@ public interface NetworkMessage
      *
      * @param buf The buffer to read data from.
      */
-    default void fromBytes( @Nonnull PacketBuffer buf )
+    default void fromBytes( @Nonnull PacketByteBuf buf )
     {
         throw new IllegalStateException( "Should have been registered using a \"from bytes\" method" );
     }

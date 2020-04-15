@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.redstone;
 
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 

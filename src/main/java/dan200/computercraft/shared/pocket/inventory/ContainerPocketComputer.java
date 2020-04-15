@@ -12,12 +12,12 @@ import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.container.Container;
+import net.minecraft.container.ContainerType;
+import net.minecraft.container.NameableContainerFactory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +29,7 @@ public final class ContainerPocketComputer extends ContainerComputerBase
     private ContainerPocketComputer( int id, ServerComputer computer, ItemPocketComputer item, Hand hand )
     {
         super( TYPE, id, p -> {
-            ItemStack stack = p.getHeldItem( hand );
+            ItemStack stack = p.getStackInHand( hand );
             return stack.getItem() == item && ItemPocketComputer.getServerComputer( stack ) == computer;
         }, computer, item.getFamily() );
     }
@@ -39,18 +39,18 @@ public final class ContainerPocketComputer extends ContainerComputerBase
         super( TYPE, id, player, data );
     }
 
-    public static class Factory implements INamedContainerProvider
+    public static class Factory implements NameableContainerFactory
     {
 
         private final ServerComputer computer;
-        private final ITextComponent name;
+        private final Text name;
         private final ItemPocketComputer item;
         private final Hand hand;
 
         public Factory( ServerComputer computer, ItemStack stack, ItemPocketComputer item, Hand hand )
         {
             this.computer = computer;
-            this.name = stack.getDisplayName();
+            this.name = stack.getName();
             this.item = item;
             this.hand = hand;
         }
@@ -58,7 +58,7 @@ public final class ContainerPocketComputer extends ContainerComputerBase
 
         @Nonnull
         @Override
-        public ITextComponent getDisplayName()
+        public Text getDisplayName()
         {
             return name;
         }

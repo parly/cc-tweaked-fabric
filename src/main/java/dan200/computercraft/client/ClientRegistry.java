@@ -11,12 +11,12 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.IUnbakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.container.PlayerContainer;
+import net.minecraft.util.Identifier;
+import net.fabricmc.api.EnvType;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Registers textures and models for items.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class ClientRegistry
 {
     private static final String[] EXTRA_MODELS = new String[] {
@@ -70,17 +70,17 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void registerModels( ModelRegistryEvent event )
     {
-        ModelLoaderRegistry.registerLoader( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ), TurtleModelLoader.INSTANCE );
+        ModelLoaderRegistry.registerLoader( new Identifier( ComputerCraft.MOD_ID, "turtle" ), TurtleModelLoader.INSTANCE );
     }
 
     @SubscribeEvent
     public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
     {
-        if( !event.getMap().getTextureLocation().equals( PlayerContainer.LOCATION_BLOCKS_TEXTURE ) ) return;
+        if( !event.getMap().getId().equals( PlayerContainer.BLOCK_ATLAS_TEXTURE ) ) return;
 
         for( String extra : EXTRA_TEXTURES )
         {
-            event.addSprite( new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
+            event.addSprite( new Identifier( ComputerCraft.MOD_ID, extra ) );
         }
     }
 
@@ -89,18 +89,18 @@ public final class ClientRegistry
     {
         // Load all extra models
         ModelLoader loader = event.getModelLoader();
-        Map<ResourceLocation, IBakedModel> registry = event.getModelRegistry();
+        Map<Identifier, BakedModel> registry = event.getModelRegistry();
 
         for( String modelName : EXTRA_MODELS )
         {
-            ResourceLocation location = new ResourceLocation( ComputerCraft.MOD_ID, "item/" + modelName );
-            IUnbakedModel model = loader.getUnbakedModel( location );
-            model.getTextures( loader::getUnbakedModel, new HashSet<>() );
+            Identifier location = new Identifier( ComputerCraft.MOD_ID, "item/" + modelName );
+            UnbakedModel model = loader.getOrLoadModel( location );
+            model.getTextureDependencies( loader::getOrLoadModel, new HashSet<>() );
 
-            IBakedModel baked = model.bakeModel( loader, ModelLoader.defaultTextureGetter(), SimpleModelTransform.IDENTITY, location );
+            BakedModel baked = model.bake( loader, ModelLoader.defaultTextureGetter(), SimpleModelTransform.IDENTITY, location );
             if( baked != null )
             {
-                registry.put( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, modelName ), "inventory" ), baked );
+                registry.put( new ModelIdentifier( new Identifier( ComputerCraft.MOD_ID, modelName ), "inventory" ), baked );
             }
         }
     }

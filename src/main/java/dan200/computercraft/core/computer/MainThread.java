@@ -6,7 +6,6 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaTask;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;

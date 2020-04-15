@@ -5,24 +5,30 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.VertexConsumer;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.util.Direction;
+import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
 
-public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.client.util.math.Rotation3;
+import net.minecraft.client.util.math.Vector3f;
+
+public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
 {
     /**
      * {@link TileMonitor#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
@@ -30,15 +36,15 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
      */
     private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
 
-    private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
+    private static final Matrix4f IDENTITY = Rotation3.identity().getMatrix();
 
-    public TileEntityMonitorRenderer( TileEntityRendererDispatcher rendererDispatcher )
+    public TileEntityMonitorRenderer( BlockEntityRenderDispatcher rendererDispatcher )
     {
         super( rendererDispatcher );
     }
 
     @Override
-    public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull MatrixStack transform, @Nonnull IRenderTypeBuffer renderer, int lightmapCoord, int overlayLight )
+    public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull MatrixStack transform, @Nonnull VertexConsumerProvider renderer, int lightmapCoord, int overlayLight )
     {
         // Render from the origin monitor
         ClientMonitor originTerminal = monitor.getClientMonitor();
@@ -64,7 +70,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         // Determine orientation
         Direction dir = origin.getDirection();
         Direction front = origin.getFront();
-        float yaw = dir.getHorizontalAngle();
+        float yaw = dir.asRotation();
         float pitch = DirectionUtil.toPitchAngle( front );
 
         // Setup initial transform
@@ -75,8 +81,8 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             originPos.getZ() - monitorPos.getZ() + 0.5
         );
 
-        transform.rotate( Vector3f.YN.rotationDegrees( yaw ) );
-        transform.rotate( Vector3f.XP.rotationDegrees( pitch ) );
+        transform.multiply( Vector3f.NEGATIVE_Y.getDegreesQuaternion( yaw ) );
+        transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( pitch ) );
         transform.translate(
             -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
             origin.getHeight() - 0.5 - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN) + 0,
@@ -106,7 +112,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             float xMargin = (float) (MARGIN / xScale);
             float yMargin = (float) (MARGIN / yScale);
 
-            Matrix4f matrix = transform.getLast().getMatrix();
+            Matrix4f matrix = transform.peek().getModel();
 
             if( redraw )
             {
@@ -118,21 +124,21 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                     terminal, !originTerminal.isColour(), yMargin, yMargin, xMargin, xMargin
                 );
 
-                builder.finishDrawing();
+                builder.end();
                 vbo.upload( builder );
             }
 
             // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
             // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
             // for now.
-            IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
-            FixedWidthFontRenderer.TYPE.setupRenderState();
+            VertexConsumer buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
+            FixedWidthFontRenderer.TYPE.startDrawing();
 
-            vbo.bindBuffer();
-            FixedWidthFontRenderer.TYPE.getVertexFormat().setupBufferState( 0L );
+            vbo.bind();
+            FixedWidthFontRenderer.TYPE.getVertexFormat().startDrawing( 0L );
             vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getDrawMode() );
-            VertexBuffer.unbindBuffer();
-            FixedWidthFontRenderer.TYPE.getVertexFormat().clearBufferState();
+            VertexBuffer.unbind();
+            FixedWidthFontRenderer.TYPE.getVertexFormat().endDrawing();
 
             // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
             // reasonable.
@@ -143,14 +149,14 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                transform.getLast().getMatrix(), renderer,
+                transform.peek().getModel(), renderer,
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
         }
 
         FixedWidthFontRenderer.drawBlocker(
-            transform.getLast().getMatrix(), renderer,
+            transform.peek().getModel(), renderer,
             (float) -TileMonitor.RENDER_MARGIN, (float) TileMonitor.RENDER_MARGIN,
             (float) (xSize + 2 * TileMonitor.RENDER_MARGIN), (float) -(ySize + TileMonitor.RENDER_MARGIN * 2)
         );

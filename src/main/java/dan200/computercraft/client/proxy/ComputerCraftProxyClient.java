@@ -19,17 +19,17 @@ import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraftforge.api.distmarker.Dist;
+import net.minecraft.client.gui.screen.Screens;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
+import net.fabricmc.api.EnvType;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class ComputerCraftProxyClient
 {
     @SubscribeEvent
@@ -38,12 +38,12 @@ public final class ComputerCraftProxyClient
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.
-        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleNormal, RenderType.getTranslucent() );
-        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleAdvanced, RenderType.getTranslucent() );
+        RenderLayers.setRenderLayer( ComputerCraft.Blocks.turtleNormal, RenderLayer.getTranslucent() );
+        RenderLayers.setRenderLayer( ComputerCraft.Blocks.turtleAdvanced, RenderLayer.getTranslucent() );
 
         // Monitors' textures have transparent fronts and so count as cutouts.
-        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorNormal, RenderType.getCutout() );
-        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorAdvanced, RenderType.getCutout() );
+        RenderLayers.setRenderLayer( ComputerCraft.Blocks.monitorNormal, RenderLayer.getCutout() );
+        RenderLayers.setRenderLayer( ComputerCraft.Blocks.monitorAdvanced, RenderLayer.getCutout() );
 
         // Setup TESRs
         ClientRegistry.bindTileEntityRenderer( TileMonitor.FACTORY_NORMAL, TileEntityMonitorRenderer::new );
@@ -57,24 +57,24 @@ public final class ComputerCraftProxyClient
     {
         // My IDE doesn't think so, but we do actually need these generics.
 
-        ScreenManager.<ContainerComputer, GuiComputer<ContainerComputer>>registerFactory( ContainerComputer.TYPE, GuiComputer::create );
-        ScreenManager.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>registerFactory( ContainerPocketComputer.TYPE, GuiComputer::createPocket );
-        ScreenManager.registerFactory( ContainerTurtle.TYPE, GuiTurtle::new );
+        Screens.<ContainerComputer, GuiComputer<ContainerComputer>>register( ContainerComputer.TYPE, GuiComputer::create );
+        Screens.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register( ContainerPocketComputer.TYPE, GuiComputer::createPocket );
+        Screens.register( ContainerTurtle.TYPE, GuiTurtle::new );
 
-        ScreenManager.registerFactory( ContainerPrinter.TYPE, GuiPrinter::new );
-        ScreenManager.registerFactory( ContainerDiskDrive.TYPE, GuiDiskDrive::new );
-        ScreenManager.registerFactory( ContainerHeldItem.PRINTOUT_TYPE, GuiPrintout::new );
+        Screens.register( ContainerPrinter.TYPE, GuiPrinter::new );
+        Screens.register( ContainerDiskDrive.TYPE, GuiDiskDrive::new );
+        Screens.register( ContainerHeldItem.PRINTOUT_TYPE, GuiPrintout::new );
 
-        ScreenManager.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>registerFactory( ContainerViewComputer.TYPE, GuiComputer::createView );
+        Screens.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( ContainerViewComputer.TYPE, GuiComputer::createView );
     }
 
-    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT )
     public static final class ForgeHandlers
     {
         @SubscribeEvent
         public static void onWorldUnload( WorldEvent.Unload event )
         {
-            if( event.getWorld().isRemote() )
+            if( event.getWorld().isClient() )
             {
                 ClientMonitor.destroyAll();
             }

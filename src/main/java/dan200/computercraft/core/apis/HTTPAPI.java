@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
-import static dan200.computercraft.core.apis.TableHelper.*;
 
 public class HTTPAPI implements ILuaAPI
 {

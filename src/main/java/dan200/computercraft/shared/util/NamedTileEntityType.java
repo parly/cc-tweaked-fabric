@@ -6,9 +6,9 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -16,24 +16,24 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class NamedTileEntityType<T extends TileEntity> extends TileEntityType<T>
+public final class NamedTileEntityType<T extends BlockEntity> extends BlockEntityType<T>
 {
-    private final ResourceLocation identifier;
+    private final Identifier identifier;
     private Block block;
 
-    private NamedTileEntityType( ResourceLocation identifier, Supplier<? extends T> supplier )
+    private NamedTileEntityType( Identifier identifier, Supplier<? extends T> supplier )
     {
         super( supplier, Collections.emptySet(), null );
         this.identifier = identifier;
         setRegistryName( identifier );
     }
 
-    public static <T extends TileEntity> NamedTileEntityType<T> create( ResourceLocation identifier, Supplier<? extends T> supplier )
+    public static <T extends BlockEntity> NamedTileEntityType<T> create( Identifier identifier, Supplier<? extends T> supplier )
     {
         return new NamedTileEntityType<>( identifier, supplier );
     }
 
-    public static <T extends TileEntity> NamedTileEntityType<T> create( ResourceLocation identifier, Function<NamedTileEntityType<T>, ? extends T> builder )
+    public static <T extends BlockEntity> NamedTileEntityType<T> create( Identifier identifier, Function<NamedTileEntityType<T>, ? extends T> builder )
     {
         return new FixedPointSupplier<>( identifier, builder ).factory;
     }
@@ -45,22 +45,22 @@ public final class NamedTileEntityType<T extends TileEntity> extends TileEntityT
     }
 
     @Override
-    public boolean isValidBlock( @Nonnull Block block )
+    public boolean supports( @Nonnull Block block )
     {
         return block == this.block;
     }
 
-    public ResourceLocation getId()
+    public Identifier getId()
     {
         return identifier;
     }
 
-    private static final class FixedPointSupplier<T extends TileEntity> implements Supplier<T>
+    private static final class FixedPointSupplier<T extends BlockEntity> implements Supplier<T>
     {
         final NamedTileEntityType<T> factory;
         private final Function<NamedTileEntityType<T>, ? extends T> builder;
 
-        private FixedPointSupplier( ResourceLocation identifier, Function<NamedTileEntityType<T>, ? extends T> builder )
+        private FixedPointSupplier( Identifier identifier, Function<NamedTileEntityType<T>, ? extends T> builder )
         {
             factory = create( identifier, this );
             this.builder = builder;

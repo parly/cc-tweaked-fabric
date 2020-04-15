@@ -10,42 +10,43 @@ import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.fluid.IFluidState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
+import net.minecraft.block.Waterloggable;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.entity.EntityContext;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.world.WorldView;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
-public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
+import net.minecraft.block.Block.Settings;
+
+public class BlockWirelessModem extends BlockGeneric implements Waterloggable
 {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    public static final BooleanProperty ON = BooleanProperty.create( "on" );
+    public static final DirectionProperty FACING = Properties.FACING;
+    public static final BooleanProperty ON = BooleanProperty.of( "on" );
 
-    public BlockWirelessModem( Properties settings, NamedTileEntityType<? extends TileWirelessModem> type )
+    public BlockWirelessModem( Settings settings, NamedTileEntityType<? extends TileWirelessModem> type )
     {
         super( settings, type );
-        setDefaultState( getStateContainer().getBaseState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( ON, false )
             .with( WATERLOGGED, false ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, ON, WATERLOGGED );
     }
@@ -53,7 +54,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape( BlockState blockState, IBlockReader blockView, BlockPos blockPos, ISelectionContext context )
+    public VoxelShape getOutlineShape( BlockState blockState, BlockView blockView, BlockPos blockPos, EntityContext context )
     {
         return ModemShapes.getBounds( blockState.get( FACING ) );
     }
@@ -61,7 +62,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public IFluidState getFluidState( BlockState state )
+    public FluidState getFluidState( BlockState state )
     {
         return getWaterloggedFluidState( state );
     }
@@ -69,30 +70,30 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updatePostPlacement( @Nonnull BlockState state, Direction side, BlockState otherState, IWorld world, BlockPos pos, BlockPos otherPos )
+    public BlockState getStateForNeighborUpdate( @Nonnull BlockState state, Direction side, BlockState otherState, IWorld world, BlockPos pos, BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
-        return side == state.get( FACING ) && !state.isValidPosition( world, pos )
+        return side == state.get( FACING ) && !state.canPlaceAt( world, pos )
             ? state.getFluidState().getBlockState()
             : state;
     }
 
     @Override
     @Deprecated
-    public boolean isValidPosition( BlockState state, IWorldReader world, BlockPos pos )
+    public boolean canPlaceAt( BlockState state, WorldView world, BlockPos pos )
     {
         Direction facing = state.get( FACING );
         BlockPos offsetPos = pos.offset( facing );
         BlockState offsetState = world.getBlockState( offsetPos );
-        return hasSolidSide( offsetState, world, offsetPos, facing.getOpposite() );
+        return isSideSolidFullSquare( offsetState, world, offsetPos, facing.getOpposite() );
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getPlacementState( ItemPlacementContext placement )
     {
         return getDefaultState()
-            .with( FACING, placement.getFace().getOpposite() )
+            .with( FACING, placement.getSide().getOpposite() )
             .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
     }
 }

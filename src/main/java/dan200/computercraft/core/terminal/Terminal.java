@@ -6,7 +6,7 @@
 package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public class Terminal
 {
@@ -323,7 +323,7 @@ public class Terminal
         m_changed = false;
     }
 
-    public synchronized CompoundNBT writeToNBT( CompoundNBT nbt )
+    public synchronized CompoundTag writeToNBT( CompoundTag nbt )
     {
         nbt.putInt( "term_cursorX", m_cursorX );
         nbt.putInt( "term_cursorY", m_cursorY );
@@ -343,7 +343,7 @@ public class Terminal
         return nbt;
     }
 
-    public synchronized void readFromNBT( CompoundNBT nbt )
+    public synchronized void readFromNBT( CompoundTag nbt )
     {
         m_cursorX = nbt.getInt( "term_cursorX" );
         m_cursorY = nbt.getInt( "term_cursorY" );

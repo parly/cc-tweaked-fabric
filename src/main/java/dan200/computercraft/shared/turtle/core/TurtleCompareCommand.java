@@ -11,10 +11,10 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import javax.annotation.Nonnull;
@@ -38,7 +38,7 @@ public class TurtleCompareCommand implements ITurtleCommand
         Direction direction = m_direction.toWorldDir( turtle );
 
         // Get currently selected stack
-        ItemStack selectedStack = turtle.getInventory().getStackInSlot( turtle.getSelectedSlot() );
+        ItemStack selectedStack = turtle.getInventory().getInvStack( turtle.getSelectedSlot() );
 
         // Get stack representing thing in front
         World world = turtle.getWorld();
@@ -46,7 +46,7 @@ public class TurtleCompareCommand implements ITurtleCommand
         BlockPos newPosition = oldPosition.offset( direction );
 
         ItemStack lookAtStack = ItemStack.EMPTY;
-        if( !world.isAirBlock( newPosition ) )
+        if( !world.isAir( newPosition ) )
         {
             BlockState lookAtState = world.getBlockState( newPosition );
             Block lookAtBlock = lookAtState.getBlock();
@@ -69,7 +69,7 @@ public class TurtleCompareCommand implements ITurtleCommand
                 // (try 5 times to try and beat random number generators)
                 for( int i = 0; i < 5 && lookAtStack.isEmpty(); i++ )
                 {
-                    List<ItemStack> drops = Block.getDrops( lookAtState, (ServerWorld) world, newPosition, world.getTileEntity( newPosition ) );
+                    List<ItemStack> drops = Block.getDroppedStacks( lookAtState, (ServerWorld) world, newPosition, world.getBlockEntity( newPosition ) );
                     if( !drops.isEmpty() )
                     {
                         for( ItemStack drop : drops )

@@ -25,13 +25,13 @@ import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
-import net.minecraft.inventory.container.Container;
+import net.minecraft.container.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
-import net.minecraft.tileentity.CommandBlockTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.loot.conditions.LootConditionManager;
+import net.minecraft.block.entity.CommandBlockBlockEntity;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.loot.condition.LootConditions;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -53,14 +53,14 @@ public final class ComputerCraftProxyCommon
 
         ArgumentSerializers.register();
 
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
-            new ResourceLocation( ComputerCraft.MOD_ID, "block_named" ),
+        LootConditions.register( ConstantLootConditionSerializer.of(
+            new Identifier( ComputerCraft.MOD_ID, "block_named" ),
             BlockNamedEntityLootCondition.class,
             BlockNamedEntityLootCondition.INSTANCE
         ) );
 
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
-            new ResourceLocation( ComputerCraft.MOD_ID, "player_creative" ),
+        LootConditions.register( ConstantLootConditionSerializer.of(
+            new Identifier( ComputerCraft.MOD_ID, "player_creative" ),
             PlayerCreativeLootCondition.class,
             PlayerCreativeLootCondition.INSTANCE
         ) );
@@ -70,13 +70,13 @@ public final class ComputerCraftProxyCommon
     {
         // Register peripheral providers
         ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
-            TileEntity tile = world.getTileEntity( pos );
+            BlockEntity tile = world.getBlockEntity( pos );
             return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral( side ) : null;
         } );
 
         ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
-            TileEntity tile = world.getTileEntity( pos );
-            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockTileEntity ? new CommandBlockPeripheral( (CommandBlockTileEntity) tile ) : null;
+            BlockEntity tile = world.getBlockEntity( pos );
+            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockBlockEntity ? new CommandBlockPeripheral( (CommandBlockBlockEntity) tile ) : null;
         } );
 
         // Register bundled power providers

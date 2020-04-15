@@ -5,24 +5,22 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.render.VertexConsumer;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.RenderState;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.client.render.RenderPhase;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 
 public final class PrintoutRenderer
 {
-    private static final ResourceLocation BG = new ResourceLocation( "computercraft", "textures/gui/printout.png" );
+    private static final Identifier BG = new Identifier( "computercraft", "textures/gui/printout.png" );
     private static final float BG_SIZE = 256.0f;
 
     /**
@@ -60,9 +58,9 @@ public final class PrintoutRenderer
 
     private PrintoutRenderer() {}
 
-    public static void drawText( Matrix4f transform, IRenderTypeBuffer renderer, int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
+    public static void drawText( Matrix4f transform, VertexConsumerProvider renderer, int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
     {
-        IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
+        VertexConsumer buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( transform, buffer,
@@ -72,9 +70,9 @@ public final class PrintoutRenderer
         }
     }
 
-    public static void drawText( Matrix4f transform, IRenderTypeBuffer renderer, int x, int y, int start, String[] text, String[] colours )
+    public static void drawText( Matrix4f transform, VertexConsumerProvider renderer, int x, int y, int start, String[] text, String[] colours )
     {
-        IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
+        VertexConsumer buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( transform, buffer,
@@ -85,12 +83,12 @@ public final class PrintoutRenderer
         }
     }
 
-    public static void drawBorder( Matrix4f transform, IRenderTypeBuffer renderer, float x, float y, float z, int page, int pages, boolean isBook )
+    public static void drawBorder( Matrix4f transform, VertexConsumerProvider renderer, float x, float y, float z, int page, int pages, boolean isBook )
     {
         int leftPages = page;
         int rightPages = pages - page - 1;
 
-        IVertexBuilder buffer = renderer.getBuffer( Type.TYPE );
+        VertexConsumer buffer = renderer.getBuffer( Type.TYPE );
 
         if( isBook )
         {
@@ -144,20 +142,20 @@ public final class PrintoutRenderer
         }
     }
 
-    private static void drawTexture( Matrix4f matrix, IVertexBuilder buffer, float x, float y, float z, float u, float v, float width, float height )
+    private static void drawTexture( Matrix4f matrix, VertexConsumer buffer, float x, float y, float z, float u, float v, float width, float height )
     {
-        buffer.pos( matrix, x, y + height, z ).tex( u / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x + width, y + height, z ).tex( (u + width) / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x + width, y, z ).tex( (u + width) / BG_SIZE, v / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x, y, z ).tex( u / BG_SIZE, v / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x, y + height, z ).texture( u / BG_SIZE, (v + height) / BG_SIZE ).next();
+        buffer.vertex( matrix, x + width, y + height, z ).texture( (u + width) / BG_SIZE, (v + height) / BG_SIZE ).next();
+        buffer.vertex( matrix, x + width, y, z ).texture( (u + width) / BG_SIZE, v / BG_SIZE ).next();
+        buffer.vertex( matrix, x, y, z ).texture( u / BG_SIZE, v / BG_SIZE ).next();
     }
 
-    private static void drawTexture( Matrix4f matrix, IVertexBuilder buffer, float x, float y, float z, float width, float height, float u, float v, float tWidth, float tHeight )
+    private static void drawTexture( Matrix4f matrix, VertexConsumer buffer, float x, float y, float z, float width, float height, float u, float v, float tWidth, float tHeight )
     {
-        buffer.pos( matrix, x, y + height, z ).tex( u / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x + width, y + height, z ).tex( (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x + width, y, z ).tex( (u + tWidth) / BG_SIZE, v / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x, y, z ).tex( u / BG_SIZE, v / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x, y + height, z ).texture( u / BG_SIZE, (v + tHeight) / BG_SIZE ).next();
+        buffer.vertex( matrix, x + width, y + height, z ).texture( (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE ).next();
+        buffer.vertex( matrix, x + width, y, z ).texture( (u + tWidth) / BG_SIZE, v / BG_SIZE ).next();
+        buffer.vertex( matrix, x, y, z ).texture( u / BG_SIZE, v / BG_SIZE ).next();
     }
 
     public static float offsetAt( int page )
@@ -165,15 +163,15 @@ public final class PrintoutRenderer
         return (float) (32 * (1 - Math.pow( 1.2, -page )));
     }
 
-    private static final class Type extends RenderState
+    private static final class Type extends RenderPhase
     {
-        static final RenderType TYPE = RenderType.makeType(
-            "printout_background", DefaultVertexFormats.POSITION_TEX, GL11.GL_QUADS, 1024,
+        static final RenderLayer TYPE = RenderLayer.of(
+            "printout_background", VertexFormats.POSITION_TEXTURE, GL11.GL_QUADS, 1024,
             false, false, // useDelegate, needsSorting
-            RenderType.State.getBuilder()
-                .texture( new RenderState.TextureState( BG, false, false ) ) // blur, minimap
-                .alpha( DEFAULT_ALPHA )
-                .lightmap( LIGHTMAP_DISABLED )
+            RenderLayer.MultiPhaseParameters.builder()
+                .texture( new RenderPhase.Texture( BG, false, false ) ) // blur, minimap
+                .alpha( ONE_TENTH_ALPHA )
+                .lightmap( DISABLE_LIGHTMAP )
                 .build( false )
         );
 

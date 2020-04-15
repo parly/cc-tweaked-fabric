@@ -9,13 +9,13 @@ import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.command.text.TableFormatter;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.NewChatGui;
-import net.minecraft.client.gui.RenderComponentsUtil;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.client.util.Texts;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -27,25 +27,25 @@ public class ClientTableFormatter implements TableFormatter
 
     private static Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
 
-    private static FontRenderer renderer()
+    private static TextRenderer renderer()
     {
-        return Minecraft.getInstance().fontRenderer;
+        return MinecraftClient.getInstance().textRenderer;
     }
 
     @Override
     @Nullable
-    public ITextComponent getPadding( ITextComponent component, int width )
+    public Text getPadding( Text component, int width )
     {
         int extraWidth = width - getWidth( component );
         if( extraWidth <= 0 ) return null;
 
-        FontRenderer renderer = renderer();
+        TextRenderer renderer = renderer();
 
         float spaceWidth = renderer.getStringWidth( " " );
         int spaces = MathHelper.floor( extraWidth / spaceWidth );
         int extra = extraWidth - (int) (spaces * spaceWidth);
 
-        return ChatHelpers.coloured( StringUtils.repeat( ' ', spaces ) + StringUtils.repeat( (char) 712, extra ), TextFormatting.GRAY );
+        return ChatHelpers.coloured( StringUtils.repeat( ' ', spaces ) + StringUtils.repeat( (char) 712, extra ), Formatting.GRAY );
     }
 
     @Override
@@ -55,34 +55,34 @@ public class ClientTableFormatter implements TableFormatter
     }
 
     @Override
-    public int getWidth( ITextComponent component )
+    public int getWidth( Text component )
     {
-        return renderer().getStringWidth( component.getFormattedText() );
+        return renderer().getStringWidth( component.asFormattedString() );
     }
 
     @Override
-    public void writeLine( int id, ITextComponent component )
+    public void writeLine( int id, Text component )
     {
-        Minecraft mc = Minecraft.getInstance();
-        NewChatGui chat = mc.ingameGUI.getChatGUI();
+        MinecraftClient mc = MinecraftClient.getInstance();
+        ChatHud chat = mc.inGameHud.getChatHud();
 
         // Trim the text if it goes over the allowed length
-        int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
-        List<ITextComponent> list = RenderComponentsUtil.splitText( component, maxWidth, mc.fontRenderer, false, false );
-        if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
+        int maxWidth = MathHelper.floor( chat.getWidth() / chat.getChatScale() );
+        List<Text> list = Texts.wrapLines( component, maxWidth, mc.textRenderer, false, false );
+        if( !list.isEmpty() ) chat.addMessage( list.get( 0 ), id );
     }
 
     @Override
     public int display( TableBuilder table )
     {
-        NewChatGui chat = Minecraft.getInstance().ingameGUI.getChatGUI();
+        ChatHud chat = MinecraftClient.getInstance().inGameHud.getChatHud();
 
         int lastHeight = lastHeights.get( table.getId() );
 
         int height = TableFormatter.super.display( table );
         lastHeights.put( table.getId(), height );
 
-        for( int i = height; i < lastHeight; i++ ) chat.deleteChatLine( i + table.getId() );
+        for( int i = height; i < lastHeight; i++ ) chat.removeMessage( i + table.getId() );
         return height;
     }
 }

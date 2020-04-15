@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.item.DyeColor;
+import net.minecraft.util.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tags.Tag;
+import net.minecraft.tag.Tag;
 import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nullable;

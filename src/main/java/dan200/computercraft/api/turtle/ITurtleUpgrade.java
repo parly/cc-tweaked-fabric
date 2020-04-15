@@ -5,19 +5,13 @@
  */
 package dan200.computercraft.api.turtle;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.Identifier;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +33,7 @@ public interface ITurtleUpgrade
      * @see ComputerCraftAPI#registerTurtleUpgrade(ITurtleUpgrade)
      */
     @Nonnull
-    ResourceLocation getUpgradeID();
+    Identifier getUpgradeID();
 
     /**
      * Return an unlocalised string to describe this type of turtle in turtle item names.
@@ -127,7 +121,7 @@ public interface ITurtleUpgrade
      * @return The model that you wish to be used to render your upgrade.
      */
     @Nonnull
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     TransformedModel getModel( @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side );
 
     /**

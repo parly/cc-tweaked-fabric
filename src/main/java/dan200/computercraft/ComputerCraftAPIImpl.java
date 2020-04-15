@@ -26,12 +26,12 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -49,8 +49,8 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
     }
 
-    private WeakReference<IReloadableResourceManager> currentResources;
-    private final Map<ResourceLocation, ResourceMount> mountCache = new MapMaker().weakValues().concurrencyLevel( 1 ).makeMap();
+    private WeakReference<ReloadableResourceManager> currentResources;
+    private final Map<Identifier, ResourceMount> mountCache = new MapMaker().weakValues().concurrencyLevel( 1 ).makeMap();
 
     @Nonnull
     @Override
@@ -81,7 +81,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
     {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        ReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getDataManager();
         ResourceMount mount = ResourceMount.get( domain, subPath, manager );
         return mount.exists( "" ) ? mount : null;
     }
@@ -144,9 +144,9 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     @Nonnull
     @Override
-    public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         return tile == null ? LazyOptional.empty() : tile.getCapability( CapabilityWiredElement.CAPABILITY, side );
     }
 }

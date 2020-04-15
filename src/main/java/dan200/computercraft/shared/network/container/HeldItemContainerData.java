@@ -5,8 +5,7 @@
  */
 package dan200.computercraft.shared.network.container;
 
-import dan200.computercraft.shared.common.ContainerHeldItem;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.Hand;
 
 import javax.annotation.Nonnull;
@@ -26,15 +25,15 @@ public class HeldItemContainerData implements ContainerData
         this.hand = hand;
     }
 
-    public HeldItemContainerData( PacketBuffer buffer )
+    public HeldItemContainerData( PacketByteBuf buffer )
     {
-        hand = buffer.readEnumValue( Hand.class );
+        hand = buffer.readEnumConstant( Hand.class );
     }
 
     @Override
-    public void toBytes( PacketBuffer buf )
+    public void toBytes( PacketByteBuf buf )
     {
-        buf.writeEnumValue( hand );
+        buf.writeEnumConstant( hand );
     }
 
     @Nonnull

@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.core.computer;
 
-import dan200.computercraft.core.lua.ILuaMachine;
-import dan200.computercraft.core.lua.MachineResult;
 
 import java.util.concurrent.TimeUnit;
 

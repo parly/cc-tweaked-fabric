@@ -11,30 +11,32 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import net.minecraft.item.Item.Settings;
+
 public class ItemDisk extends Item implements IMedia, IColouredItem
 {
     private static final String NBT_ID = "DiskId";
 
-    public ItemDisk( Properties settings )
+    public ItemDisk( Settings settings )
     {
         super( settings );
     }
@@ -50,9 +52,9 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup tabs, @Nonnull NonNullList<ItemStack> list )
+    public void appendStacks( @Nonnull ItemGroup tabs, @Nonnull DefaultedList<ItemStack> list )
     {
-        if( !isInGroup( tabs ) ) return;
+        if( !isIn( tabs ) ) return;
         for( int colour = 0; colour < 16; colour++ )
         {
             list.add( createFromIDAndColour( -1, null, Colour.VALUES[colour].getHex() ) );
@@ -60,21 +62,21 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void addInformation( ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag options )
+    public void appendTooltip( ItemStack stack, @Nullable World world, List<Text> list, TooltipContext options )
     {
         if( options.isAdvanced() )
         {
             int id = getDiskID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslationTextComponent( "gui.computercraft.tooltip.disk_id", id )
-                    .applyTextStyle( TextFormatting.GRAY ) );
+                list.add( new TranslatableText( "gui.computercraft.tooltip.disk_id", id )
+                    .formatted( Formatting.GRAY ) );
             }
         }
     }
 
     @Override
-    public boolean doesSneakBypassUse( ItemStack stack, IWorldReader world, BlockPos pos, PlayerEntity player )
+    public boolean doesSneakBypassUse( ItemStack stack, WorldView world, BlockPos pos, PlayerEntity player )
     {
         return true;
     }
@@ -82,7 +84,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        return stack.hasDisplayName() ? stack.getDisplayName().getString() : null;
+        return stack.hasCustomName() ? stack.getName().getString() : null;
     }
 
     @Override
@@ -90,11 +92,11 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setCustomName( new LiteralText( label ) );
         }
         else
         {
-            stack.clearCustomName();
+            stack.removeCustomName();
         }
         return true;
     }
@@ -113,7 +115,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
 
     public static int getDiskID( @Nonnull ItemStack stack )
     {
-        CompoundNBT nbt = stack.getTag();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 

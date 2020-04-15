@@ -10,8 +10,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -115,13 +115,13 @@ public final class WiredModemLocalPeripheral
             : Collections.singletonMap( type + "_" + id, peripheral );
     }
 
-    public void write( @Nonnull CompoundNBT tag, @Nonnull String suffix )
+    public void write( @Nonnull CompoundTag tag, @Nonnull String suffix )
     {
         if( id >= 0 ) tag.putInt( NBT_PERIPHERAL_ID + suffix, id );
         if( type != null ) tag.putString( NBT_PERIPHERAL_TYPE + suffix, type );
     }
 
-    public void read( @Nonnull CompoundNBT tag, @Nonnull String suffix )
+    public void read( @Nonnull CompoundTag tag, @Nonnull String suffix )
     {
         id = tag.contains( NBT_PERIPHERAL_ID + suffix, Constants.NBT.TAG_ANY_NUMERIC )
             ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;

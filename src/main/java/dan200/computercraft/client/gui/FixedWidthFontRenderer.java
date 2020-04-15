@@ -6,27 +6,32 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.render.VertexConsumer;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderPhase;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.client.util.math.Rotation3;
+
 public final class FixedWidthFontRenderer
 {
-    private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
+    private static final Matrix4f IDENTITY = Rotation3.identity().getMatrix();
 
-    private static final ResourceLocation FONT = new ResourceLocation( "computercraft", "textures/gui/term_font.png" );
+    private static final Identifier FONT = new Identifier( "computercraft", "textures/gui/term_font.png" );
 
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
@@ -35,7 +40,7 @@ public final class FixedWidthFontRenderer
     public static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
     public static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
 
-    public static final RenderType TYPE = Type.MAIN;
+    public static final RenderLayer TYPE = Type.MAIN;
 
     private FixedWidthFontRenderer()
     {
@@ -46,7 +51,7 @@ public final class FixedWidthFontRenderer
         return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
     }
 
-    private static void drawChar( Matrix4f transform, IVertexBuilder buffer, float x, float y, int index, float r, float g, float b )
+    private static void drawChar( Matrix4f transform, VertexConsumer buffer, float x, float y, int index, float r, float g, float b )
     {
         int column = index % 16;
         int row = index / 16;
@@ -54,26 +59,26 @@ public final class FixedWidthFontRenderer
         int xStart = 1 + column * (FONT_WIDTH + 2);
         int yStart = 1 + row * (FONT_HEIGHT + 2);
 
-        buffer.pos( transform, x, y, 0f ).color( r, g, b, 1.0f ).tex( xStart / WIDTH, yStart / WIDTH ).endVertex();
-        buffer.pos( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).tex( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
-        buffer.pos( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).tex( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).endVertex();
-        buffer.pos( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).tex( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).endVertex();
-        buffer.pos( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).tex( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
-        buffer.pos( transform, x + FONT_WIDTH, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).tex( (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
+        buffer.vertex( transform, x, y, 0f ).color( r, g, b, 1.0f ).texture( xStart / WIDTH, yStart / WIDTH ).next();
+        buffer.vertex( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).texture( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).next();
+        buffer.vertex( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).texture( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).next();
+        buffer.vertex( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).texture( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).next();
+        buffer.vertex( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).texture( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).next();
+        buffer.vertex( transform, x + FONT_WIDTH, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).texture( (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).next();
     }
 
-    private static void drawQuad( Matrix4f transform, IVertexBuilder buffer, float x, float y, float width, float height, float r, float g, float b )
+    private static void drawQuad( Matrix4f transform, VertexConsumer buffer, float x, float y, float width, float height, float r, float g, float b )
     {
-        buffer.pos( transform, x, y, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_START, BACKGROUND_START ).endVertex();
-        buffer.pos( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_START, BACKGROUND_END ).endVertex();
-        buffer.pos( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_END, BACKGROUND_START ).endVertex();
-        buffer.pos( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_END, BACKGROUND_START ).endVertex();
-        buffer.pos( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_START, BACKGROUND_END ).endVertex();
-        buffer.pos( transform, x + width, y + height, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_END, BACKGROUND_END ).endVertex();
+        buffer.vertex( transform, x, y, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_START, BACKGROUND_START ).next();
+        buffer.vertex( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_START, BACKGROUND_END ).next();
+        buffer.vertex( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_END, BACKGROUND_START ).next();
+        buffer.vertex( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_END, BACKGROUND_START ).next();
+        buffer.vertex( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_START, BACKGROUND_END ).next();
+        buffer.vertex( transform, x + width, y + height, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_END, BACKGROUND_END ).next();
     }
 
     private static void drawBackground(
-        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder renderer, float x, float y,
+        @Nonnull Matrix4f transform, @Nonnull VertexConsumer renderer, float x, float y,
         @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette, boolean greyscale,
         float leftMarginSize, float rightMarginSize, float height
     )
@@ -134,7 +139,7 @@ public final class FixedWidthFontRenderer
     }
 
     public static void drawString(
-        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder renderer, float x, float y,
+        @Nonnull Matrix4f transform, @Nonnull VertexConsumer renderer, float x, float y,
         @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nullable TextBuffer backgroundColour,
         @Nonnull Palette palette, boolean greyscale, float leftMarginSize, float rightMarginSize
     )
@@ -172,16 +177,16 @@ public final class FixedWidthFontRenderer
         @Nonnull Palette palette, boolean greyscale, float leftMarginSize, float rightMarginSize
     )
     {
-        Minecraft.getInstance().getTextureManager().bindTexture( FONT );
+        MinecraftClient.getInstance().getTextureManager().bindTexture( FONT );
         // TODO: RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        drawString( IDENTITY, ((IRenderTypeBuffer) renderer).getBuffer( TYPE ), x, y, text, textColour, backgroundColour, palette, greyscale, leftMarginSize, rightMarginSize );
-        renderer.finish();
+        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        drawString( IDENTITY, ((VertexConsumerProvider) renderer).getBuffer( TYPE ), x, y, text, textColour, backgroundColour, palette, greyscale, leftMarginSize, rightMarginSize );
+        renderer.draw();
     }
 
     public static void drawTerminalWithoutCursor(
-        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y,
+        @Nonnull Matrix4f transform, @Nonnull VertexConsumer buffer, float x, float y,
         @Nonnull Terminal terminal, boolean greyscale,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
@@ -214,7 +219,7 @@ public final class FixedWidthFontRenderer
     }
 
     public static void drawCursor(
-        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y,
+        @Nonnull Matrix4f transform, @Nonnull VertexConsumer buffer, float x, float y,
         @Nonnull Terminal terminal, boolean greyscale
     )
     {
@@ -244,7 +249,7 @@ public final class FixedWidthFontRenderer
     }
 
     public static void drawTerminal(
-        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y,
+        @Nonnull Matrix4f transform, @Nonnull VertexConsumer buffer, float x, float y,
         @Nonnull Terminal terminal, boolean greyscale,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
@@ -258,14 +263,14 @@ public final class FixedWidthFontRenderer
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
-        Minecraft.getInstance().getTextureManager().bindTexture( FONT );
+        MinecraftClient.getInstance().getTextureManager().bindTexture( FONT );
         // TODO: Is this the most sane thing?
         RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        IVertexBuilder buffer = renderer.getBuffer( TYPE );
+        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        VertexConsumer buffer = renderer.getBuffer( TYPE );
         drawTerminal( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
-        renderer.finish( TYPE );
+        renderer.draw( TYPE );
     }
 
     public static void drawTerminal(
@@ -276,7 +281,7 @@ public final class FixedWidthFontRenderer
         drawTerminal( IDENTITY, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
     }
 
-    public static void drawEmptyTerminal( @Nonnull Matrix4f transform, @Nonnull IRenderTypeBuffer renderer, float x, float y, float width, float height )
+    public static void drawEmptyTerminal( @Nonnull Matrix4f transform, @Nonnull VertexConsumerProvider renderer, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
         drawQuad( transform, renderer.getBuffer( TYPE ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
@@ -284,12 +289,12 @@ public final class FixedWidthFontRenderer
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, float x, float y, float width, float height )
     {
-        Minecraft.getInstance().getTextureManager().bindTexture( FONT );
+        MinecraftClient.getInstance().getTextureManager().bindTexture( FONT );
         RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
         drawEmptyTerminal( transform, renderer, x, y, width, height );
-        renderer.finish();
+        renderer.draw();
     }
 
     public static void drawEmptyTerminal( float x, float y, float width, float height )
@@ -297,37 +302,37 @@ public final class FixedWidthFontRenderer
         drawEmptyTerminal( IDENTITY, x, y, width, height );
     }
 
-    public static void drawBlocker( @Nonnull Matrix4f transform, @Nonnull IRenderTypeBuffer renderer, float x, float y, float width, float height )
+    public static void drawBlocker( @Nonnull Matrix4f transform, @Nonnull VertexConsumerProvider renderer, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
         drawQuad( transform, renderer.getBuffer( Type.BLOCKER ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 
-    private static final class Type extends RenderState
+    private static final class Type extends RenderPhase
     {
         private static final int GL_MODE = GL11.GL_TRIANGLES;
 
-        private static final VertexFormat FORMAT = DefaultVertexFormats.POSITION_COLOR_TEX;
+        private static final VertexFormat FORMAT = VertexFormats.POSITION_COLOR_TEXTURE;
 
-        static final RenderType MAIN = RenderType.makeType(
+        static final RenderLayer MAIN = RenderLayer.of(
             "terminal_font", FORMAT, GL_MODE, 1024,
             false, false, // useDelegate, needsSorting
-            RenderType.State.getBuilder()
-                .texture( new RenderState.TextureState( FONT, false, false ) ) // blur, minimap
-                .alpha( DEFAULT_ALPHA )
-                .lightmap( LIGHTMAP_DISABLED )
-                .writeMask( COLOR_WRITE )
+            RenderLayer.MultiPhaseParameters.builder()
+                .texture( new RenderPhase.Texture( FONT, false, false ) ) // blur, minimap
+                .alpha( ONE_TENTH_ALPHA )
+                .lightmap( DISABLE_LIGHTMAP )
+                .writeMaskState( COLOR_MASK )
                 .build( false )
         );
 
-        static final RenderType BLOCKER = RenderType.makeType(
+        static final RenderLayer BLOCKER = RenderLayer.of(
             "terminal_blocker", FORMAT, GL_MODE, 256,
             false, false, // useDelegate, needsSorting
-            RenderType.State.getBuilder()
-                .texture( new RenderState.TextureState( FONT, false, false ) ) // blur, minimap
-                .alpha( DEFAULT_ALPHA )
-                .writeMask( DEPTH_WRITE )
-                .lightmap( LIGHTMAP_DISABLED )
+            RenderLayer.MultiPhaseParameters.builder()
+                .texture( new RenderPhase.Texture( FONT, false, false ) ) // blur, minimap
+                .alpha( ONE_TENTH_ALPHA )
+                .writeMaskState( DEPTH_MASK )
+                .lightmap( DISABLE_LIGHTMAP )
                 .build( false )
         );
 

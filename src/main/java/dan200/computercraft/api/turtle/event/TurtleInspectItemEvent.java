@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.api.turtle.event;
 
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import net.minecraft.item.ItemStack;
 

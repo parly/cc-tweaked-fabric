@@ -9,9 +9,9 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -151,7 +151,7 @@ public interface ITurtleAccess
      * @see #getItemHandler()
      */
     @Nonnull
-    IInventory getInventory();
+    Inventory getInventory();
 
     /**
      * Get the inventory of this turtle as an {@link IItemHandlerModifiable}.
@@ -293,7 +293,7 @@ public interface ITurtleAccess
      * @see #updateUpgradeNBTData(TurtleSide)
      */
     @Nonnull
-    CompoundNBT getUpgradeNBTData( @Nullable TurtleSide side );
+    CompoundTag getUpgradeNBTData( @Nullable TurtleSide side );
 
     /**
      * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the

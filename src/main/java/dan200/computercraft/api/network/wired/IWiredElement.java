@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.network.wired;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 
 import javax.annotation.Nonnull;
 

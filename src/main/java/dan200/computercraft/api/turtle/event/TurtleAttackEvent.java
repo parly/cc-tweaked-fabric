@@ -8,11 +8,8 @@ package dan200.computercraft.api.turtle.event;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.TurtleVerb;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

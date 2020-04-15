@@ -8,7 +8,7 @@ package dan200.computercraft.shared;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 

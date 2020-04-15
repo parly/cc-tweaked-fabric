@@ -18,8 +18,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static dan200.computercraft.core.computer.TimeoutState.ABORT_TIMEOUT;
-import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
 
 /**
  * Responsible for running all tasks from a {@link Computer}.

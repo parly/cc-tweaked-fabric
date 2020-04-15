@@ -9,12 +9,11 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.MapMaker;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
-import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.*;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -22,10 +21,13 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.world.RayTraceContext;
+
 public final class WorldUtil
 {
     @SuppressWarnings( "Guava" )
-    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.canBeCollidedWith();
+    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.collides();
 
     private static final Map<World, Entity> entityCache = new MapMaker().weakKeys().weakValues().makeMap();
 
@@ -39,14 +41,14 @@ public final class WorldUtil
         {
             @Nonnull
             @Override
-            public EntitySize getSize( Pose pose )
+            public EntityDimensions getDimensions( EntityPose pose )
             {
-                return EntitySize.fixed( 0, 0 );
+                return EntityDimensions.fixed( 0, 0 );
             }
         };
 
         entity.noClip = true;
-        entity.recalculateSize();
+        entity.calculateDimensions();
         entityCache.put( world, entity );
         return entity;
     }
@@ -62,8 +64,8 @@ public final class WorldUtil
     {
         if( shape.isEmpty() ) return false;
         // AxisAlignedBB.contains, but without strict inequalities.
-        AxisAlignedBB bb = shape.getBoundingBox();
-        return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
+        Box bb = shape.getBoundingBox();
+        return vec.x >= bb.x1 && vec.x <= bb.x2 && vec.y >= bb.y1 && vec.y <= bb.y2 && vec.z >= bb.z1 && vec.z <= bb.z2;
     }
 
     public static Pair<Entity, Vec3d> rayTraceEntities( World world, Vec3d vecStart, Vec3d vecDir, double distance )
@@ -72,12 +74,12 @@ public final class WorldUtil
 
         // Raycast for blocks
         Entity collisionEntity = getEntity( world );
-        collisionEntity.setPosition( vecStart.x, vecStart.y, vecStart.z );
-        RayTraceContext context = new RayTraceContext( vecStart, vecEnd, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, collisionEntity );
-        RayTraceResult result = world.rayTraceBlocks( context );
-        if( result != null && result.getType() == RayTraceResult.Type.BLOCK )
+        collisionEntity.updatePosition( vecStart.x, vecStart.y, vecStart.z );
+        RayTraceContext context = new RayTraceContext( vecStart, vecEnd, RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.NONE, collisionEntity );
+        HitResult result = world.rayTrace( context );
+        if( result != null && result.getType() == HitResult.Type.BLOCK )
         {
-            distance = vecStart.distanceTo( result.getHitVec() );
+            distance = vecStart.distanceTo( result.getPos() );
             vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
         }
 
@@ -85,7 +87,7 @@ public final class WorldUtil
         float xStretch = Math.abs( vecDir.x ) > 0.25f ? 0.0f : 1.0f;
         float yStretch = Math.abs( vecDir.y ) > 0.25f ? 0.0f : 1.0f;
         float zStretch = Math.abs( vecDir.z ) > 0.25f ? 0.0f : 1.0f;
-        AxisAlignedBB bigBox = new AxisAlignedBB(
+        Box bigBox = new Box(
             Math.min( vecStart.x, vecEnd.x ) - 0.375f * xStretch,
             Math.min( vecStart.y, vecEnd.y ) - 0.375f * yStretch,
             Math.min( vecStart.z, vecEnd.z ) - 0.375f * zStretch,
@@ -96,10 +98,10 @@ public final class WorldUtil
 
         Entity closest = null;
         double closestDist = 99.0;
-        List<Entity> list = world.getEntitiesWithinAABB( Entity.class, bigBox, CAN_COLLIDE );
+        List<Entity> list = world.getEntities( Entity.class, bigBox, CAN_COLLIDE );
         for( Entity entity : list )
         {
-            AxisAlignedBB littleBox = entity.getBoundingBox();
+            Box littleBox = entity.getBoundingBox();
             if( littleBox.contains( vecStart ) )
             {
                 closest = entity;
@@ -136,13 +138,13 @@ public final class WorldUtil
 
     public static Vec3d getRayStart( LivingEntity entity )
     {
-        return entity.getEyePosition( 1 );
+        return entity.getCameraPosVec( 1 );
     }
 
     public static Vec3d getRayEnd( PlayerEntity player )
     {
-        double reach = player.getAttribute( PlayerEntity.REACH_DISTANCE ).getValue();
-        Vec3d look = player.getLookVec();
+        double reach = player.getAttributeInstance( PlayerEntity.REACH_DISTANCE ).getValue();
+        Vec3d look = player.getRotationVector();
         return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
     }
 
@@ -158,9 +160,9 @@ public final class WorldUtil
         double zDir;
         if( direction != null )
         {
-            xDir = direction.getXOffset();
-            yDir = direction.getYOffset();
-            zDir = direction.getZOffset();
+            xDir = direction.getOffsetX();
+            yDir = direction.getOffsetY();
+            zDir = direction.getOffsetZ();
         }
         else
         {
@@ -183,12 +185,12 @@ public final class WorldUtil
     public static void dropItemStack( @Nonnull ItemStack stack, World world, Vec3d pos, double xDir, double yDir, double zDir )
     {
         ItemEntity item = new ItemEntity( world, pos.x, pos.y, pos.z, stack.copy() );
-        item.setMotion(
+        item.setVelocity(
             xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
             yDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
             zDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1
         );
-        item.setDefaultPickupDelay();
-        world.addEntity( item );
+        item.setToDefaultPickupDelay();
+        world.spawnEntity( item );
     }
 }

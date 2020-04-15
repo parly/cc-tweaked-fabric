@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.data;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.INameable;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameter;
-import net.minecraft.world.storage.loot.LootParameters;
-import net.minecraft.world.storage.loot.conditions.ILootCondition;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.Nameable;
+import net.minecraft.loot.context.LootContext;
+import net.minecraft.loot.context.LootContextParameter;
+import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.condition.LootCondition;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * A loot condition which checks if the tile entity has a name.
  */
-public final class BlockNamedEntityLootCondition implements ILootCondition
+public final class BlockNamedEntityLootCondition implements LootCondition
 {
     public static final BlockNamedEntityLootCondition INSTANCE = new BlockNamedEntityLootCondition();
 
@@ -30,14 +30,14 @@ public final class BlockNamedEntityLootCondition implements ILootCondition
     @Override
     public boolean test( LootContext lootContext )
     {
-        TileEntity tile = lootContext.get( LootParameters.BLOCK_ENTITY );
-        return tile instanceof INameable && ((INameable) tile).hasCustomName();
+        BlockEntity tile = lootContext.get( LootContextParameters.BLOCK_ENTITY );
+        return tile instanceof Nameable && ((Nameable) tile).hasCustomName();
     }
 
     @Nonnull
     @Override
-    public Set<LootParameter<?>> getRequiredParameters()
+    public Set<LootContextParameter<?>> getRequiredParameters()
     {
-        return Collections.singleton( LootParameters.BLOCK_ENTITY );
+        return Collections.singleton( LootContextParameters.BLOCK_ENTITY );
     }
 }

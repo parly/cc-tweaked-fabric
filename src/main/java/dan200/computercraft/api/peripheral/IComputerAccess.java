@@ -5,12 +5,8 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

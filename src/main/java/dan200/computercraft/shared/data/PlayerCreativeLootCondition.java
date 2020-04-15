@@ -7,10 +7,10 @@ package dan200.computercraft.shared.data;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameter;
-import net.minecraft.world.storage.loot.LootParameters;
-import net.minecraft.world.storage.loot.conditions.ILootCondition;
+import net.minecraft.loot.context.LootContext;
+import net.minecraft.loot.context.LootContextParameter;
+import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.condition.LootCondition;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * A loot condition which checks if the entity is in creative mode.
  */
-public final class PlayerCreativeLootCondition implements ILootCondition
+public final class PlayerCreativeLootCondition implements LootCondition
 {
     public static final PlayerCreativeLootCondition INSTANCE = new PlayerCreativeLootCondition();
 
@@ -30,14 +30,14 @@ public final class PlayerCreativeLootCondition implements ILootCondition
     @Override
     public boolean test( LootContext lootContext )
     {
-        Entity entity = lootContext.get( LootParameters.THIS_ENTITY );
-        return entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.isCreativeMode;
+        Entity entity = lootContext.get( LootContextParameters.THIS_ENTITY );
+        return entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.creativeMode;
     }
 
     @Nonnull
     @Override
-    public Set<LootParameter<?>> getRequiredParameters()
+    public Set<LootContextParameter<?>> getRequiredParameters()
     {
-        return Collections.singleton( LootParameters.THIS_ENTITY );
+        return Collections.singleton( LootContextParameters.THIS_ENTITY );
     }
 }

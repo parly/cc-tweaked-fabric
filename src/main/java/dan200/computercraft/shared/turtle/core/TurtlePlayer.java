@@ -12,17 +12,17 @@ import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.*;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.container.NameableContainerFactory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.tileentity.SignTileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.block.entity.SignBlockEntity;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
@@ -37,16 +37,16 @@ public final class TurtlePlayer extends FakePlayer
         "[ComputerCraft]"
     );
 
-    public static final EntityType<TurtlePlayer> TYPE = EntityType.Builder.<TurtlePlayer>create( EntityClassification.MISC )
-        .disableSerialization()
-        .disableSummoning()
-        .size( 0, 0 )
+    public static final EntityType<TurtlePlayer> TYPE = EntityType.Builder.<TurtlePlayer>create( EntityCategory.MISC )
+        .disableSaving()
+        .disableSummon()
+        .setDimensions( 0, 0 )
         .build( ComputerCraft.MOD_ID + ":turtle_player" );
 
     private TurtlePlayer( ITurtleAccess turtle )
     {
         super( (ServerWorld) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
-        this.connection = new FakeNetHandler( this );
+        this.networkHandler = new FakeNetHandler( this );
         setState( turtle );
     }
 
@@ -57,18 +57,18 @@ public final class TurtlePlayer extends FakePlayer
 
     private void setState( ITurtleAccess turtle )
     {
-        if( openContainer != null )
+        if( container != null )
         {
-            ComputerCraft.log.warn( "Turtle has open container ({})", openContainer );
-            openContainer.onContainerClosed( this );
-            openContainer = null;
+            ComputerCraft.log.warn( "Turtle has open container ({})", container );
+            container.close( this );
+            container = null;
         }
 
         BlockPos position = turtle.getPosition();
-        setRawPosition( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
+        setPos( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
 
-        rotationYaw = turtle.getDirection().getHorizontalAngle();
-        rotationPitch = 0.0f;
+        yaw = turtle.getDirection().asRotation();
+        pitch = 0.0f;
 
         inventory.clear();
     }
@@ -95,22 +95,22 @@ public final class TurtlePlayer extends FakePlayer
     public void loadInventory( @Nonnull ItemStack currentStack )
     {
         // Load up the fake inventory
-        inventory.currentItem = 0;
-        inventory.setInventorySlotContents( 0, currentStack );
+        inventory.selectedSlot = 0;
+        inventory.setInvStack( 0, currentStack );
     }
 
     public ItemStack unloadInventory( ITurtleAccess turtle )
     {
         // Get the item we placed with
-        ItemStack results = inventory.getStackInSlot( 0 );
-        inventory.setInventorySlotContents( 0, ItemStack.EMPTY );
+        ItemStack results = inventory.getInvStack( 0 );
+        inventory.setInvStack( 0, ItemStack.EMPTY );
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         Direction dropDirection = turtle.getDirection().getOpposite();
-        for( int i = 0; i < inventory.getSizeInventory(); i++ )
+        for( int i = 0; i < inventory.getInvSize(); i++ )
         {
-            ItemStack stack = inventory.getStackInSlot( i );
+            ItemStack stack = inventory.getInvStack( i );
             if( !stack.isEmpty() )
             {
                 ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
@@ -118,7 +118,7 @@ public final class TurtlePlayer extends FakePlayer
                 {
                     WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
                 }
-                inventory.setInventorySlotContents( i, ItemStack.EMPTY );
+                inventory.setInvStack( i, ItemStack.EMPTY );
             }
         }
         inventory.markDirty();
@@ -133,19 +133,19 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public Vec3d getPositionVector()
+    public Vec3d getPosVector()
     {
-        return getPositionVec();
+        return getPos();
     }
 
     @Override
-    public float getEyeHeight( @Nonnull Pose pose )
+    public float getEyeHeight( @Nonnull EntityPose pose )
     {
         return 0;
     }
 
     @Override
-    public float getStandingEyeHeight( Pose pose, EntitySize size )
+    public float getActiveEyeHeight( EntityPose pose, EntityDimensions size )
     {
         return 0;
     }
@@ -153,18 +153,18 @@ public final class TurtlePlayer extends FakePlayer
     //region Code which depends on the connection
     @Nonnull
     @Override
-    public OptionalInt openContainer( @Nullable INamedContainerProvider prover )
+    public OptionalInt openContainer( @Nullable NameableContainerFactory prover )
     {
         return OptionalInt.empty();
     }
 
     @Override
-    public void sendEnterCombat()
+    public void enterCombat()
     {
     }
 
     @Override
-    public void sendEndCombat()
+    public void endCombat()
     {
     }
 
@@ -180,42 +180,42 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void openSignEditor( SignTileEntity signTile )
+    public void openEditSignScreen( SignBlockEntity signTile )
     {
     }
 
     @Override
-    public void openHorseInventory( AbstractHorseEntity horse, IInventory inventory )
+    public void openHorseInventory( HorseBaseEntity horse, Inventory inventory )
     {
     }
 
     @Override
-    public void openBook( ItemStack stack, @Nonnull Hand hand )
+    public void openEditBookScreen( ItemStack stack, @Nonnull Hand hand )
     {
     }
 
     @Override
-    public void closeScreen()
+    public void closeContainer()
     {
     }
 
     @Override
-    public void updateHeldItem()
+    public void method_14241()
     {
     }
 
     @Override
-    protected void onNewPotionEffect( EffectInstance id )
+    protected void onStatusEffectApplied( StatusEffectInstance id )
     {
     }
 
     @Override
-    protected void onChangedPotionEffect( EffectInstance id, boolean apply )
+    protected void onStatusEffectUpgraded( StatusEffectInstance id, boolean apply )
     {
     }
 
     @Override
-    protected void onFinishedPotionEffect( EffectInstance effect )
+    protected void onStatusEffectRemoved( StatusEffectInstance effect )
     {
     }
     //endregion

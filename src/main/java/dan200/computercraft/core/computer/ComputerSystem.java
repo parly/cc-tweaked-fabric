@@ -7,8 +7,6 @@ package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.lua.IComputerSystem;
-import dan200.computercraft.api.lua.ILuaAPIFactory;
-import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.ComputerAccess;
 import dan200.computercraft.core.apis.IAPIEnvironment;
