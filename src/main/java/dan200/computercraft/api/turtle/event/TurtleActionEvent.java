@@ -6,7 +6,6 @@
 package dan200.computercraft.api.turtle.event;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import net.minecraftforge.eventbus.api.Cancelable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,7 +14,6 @@ import java.util.Objects;
 /**
  * An event fired when a turtle is performing a known action.
  */
-@Cancelable
 public class TurtleActionEvent extends TurtleEvent
 {
     private final TurtleAction action;

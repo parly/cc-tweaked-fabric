@@ -22,18 +22,10 @@ import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.screen.Screens;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
-import net.fabricmc.api.EnvType;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class ComputerCraftProxyClient
 {
-    @SubscribeEvent
-    public static void setupClient( FMLClientSetupEvent event )
+    public static void setupClient()
     {
         registerContainers();
 
@@ -46,11 +38,11 @@ public final class ComputerCraftProxyClient
         RenderLayers.setRenderLayer( ComputerCraft.Blocks.monitorAdvanced, RenderLayer.getCutout() );
 
         // Setup TESRs
-        ClientRegistry.bindTileEntityRenderer( TileMonitor.FACTORY_NORMAL, TileEntityMonitorRenderer::new );
-        ClientRegistry.bindTileEntityRenderer( TileMonitor.FACTORY_ADVANCED, TileEntityMonitorRenderer::new );
-        ClientRegistry.bindTileEntityRenderer( TileTurtle.FACTORY_NORMAL, TileEntityTurtleRenderer::new );
-        ClientRegistry.bindTileEntityRenderer( TileTurtle.FACTORY_ADVANCED, TileEntityTurtleRenderer::new );
-        // TODO: ClientRegistry.bindTileEntityRenderer( TileCable.FACTORY, x -> new TileEntityCableRenderer() );
+        BlockEntityRendererRegistry.INSTANCE.register( TileMonitor.FACTORY_NORMAL, new TileEntityMonitorRenderer() );
+        BlockEntityRendererRegistry.INSTANCE.register( TileMonitor.FACTORY_ADVANCED, new TileEntityMonitorRenderer() );
+        BlockEntityRendererRegistry.INSTANCE.register( TileTurtle.FACTORY_NORMAL, new TileEntityTurtleRenderer() );
+        BlockEntityRendererRegistry.INSTANCE.register( TileTurtle.FACTORY_ADVANCED, new TileEntityTurtleRenderer() );
+        // TODO: BlockEntityRendererRegistry.INSTANCE.register( TileCable.FACTORY, new TileEntityCableRenderer() );
     }
 
     private static void registerContainers()
@@ -66,18 +58,5 @@ public final class ComputerCraftProxyClient
         Screens.register( ContainerHeldItem.PRINTOUT_TYPE, GuiPrintout::new );
 
         Screens.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( ContainerViewComputer.TYPE, GuiComputer::createView );
-    }
-
-    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT )
-    public static final class ForgeHandlers
-    {
-        @SubscribeEvent
-        public static void onWorldUnload( WorldEvent.Unload event )
-        {
-            if( event.getWorld().isClient() )
-            {
-                ClientMonitor.destroyAll();
-            }
-        }
     }
 }

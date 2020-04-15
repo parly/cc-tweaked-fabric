@@ -156,17 +156,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    protected void invalidateCaps()
-    {
-        super.invalidateCaps();
-        if( elementCap != null )
-        {
-            elementCap.invalidate();
-            elementCap = null;
-        }
-    }
-
-    @Override
     public void onLoad()
     {
         super.onLoad();

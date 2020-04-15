@@ -41,9 +41,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -66,9 +63,6 @@ public class TurtleBrain implements ITurtleAccess
     private TileTurtle m_owner;
     private ComputerProxy m_proxy;
     private GameProfile m_owningPlayer;
-
-    private final Inventory m_inventory = (InventoryDelegate) () -> m_owner;
-    private final IItemHandlerModifiable m_inventoryWrapper = new InvWrapper( m_inventory );
 
     private Queue<TurtleCommandQueueEntry> m_commandQueue = new ArrayDeque<>();
     private int m_commandsIssued = 0;
@@ -210,7 +204,7 @@ public class TurtleBrain implements ITurtleAccess
         m_selectedSlot = nbt.getInt( NBT_SLOT );
 
         // Read owner
-        if( nbt.contains( "Owner", Constants.NBT.TAG_COMPOUND ) )
+        if( nbt.contains( "Owner", NBTUtil.TAG_COMPOUND ) )
         {
             CompoundTag owner = nbt.getCompound( "Owner" );
             m_owningPlayer = new GameProfile(
@@ -440,14 +434,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public Inventory getInventory()
     {
-        return m_inventory;
-    }
-
-    @Nonnull
-    @Override
-    public IItemHandlerModifiable getItemHandler()
-    {
-        return m_inventoryWrapper;
+        return m_owner;
     }
 
     @Override

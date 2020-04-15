@@ -37,11 +37,6 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -75,8 +70,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     private final DefaultedList<ItemStack> m_inventory = DefaultedList.ofSize( INVENTORY_SIZE, ItemStack.EMPTY );
     private final DefaultedList<ItemStack> m_previousInventory = DefaultedList.ofSize( INVENTORY_SIZE, ItemStack.EMPTY );
-    private final IItemHandlerModifiable m_itemHandler = new InvWrapper( this );
-    private LazyOptional<IItemHandlerModifiable> itemHandlerCap;
     private boolean m_inventoryChanged = false;
     private TurtleBrain m_brain = new TurtleBrain( this );
     private MoveState m_moveState = MoveState.NOT_MOVED;
@@ -148,17 +141,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         if( !hasMoved() )
         {
             super.unload();
-        }
-    }
-
-    @Override
-    protected void invalidateCaps()
-    {
-        super.invalidateCaps();
-        if( itemHandlerCap != null )
-        {
-            itemHandlerCap.invalidate();
-            itemHandlerCap = null;
         }
     }
 
@@ -274,7 +256,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         super.fromTag( nbt );
 
         // Read inventory
-        ListTag nbttaglist = nbt.getList( "Items", Constants.NBT.TAG_COMPOUND );
+        ListTag nbttaglist = nbt.getList( "Items", NBTUtil.TAG_COMPOUND );
         m_inventory.clear();
         m_previousInventory.clear();
         for( int i = 0; i < nbttaglist.size(); i++ )
@@ -554,23 +536,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     public IPeripheral getPeripheral( @Nonnull Direction side )
     {
         return hasMoved() ? null : new ComputerPeripheral( "turtle", createProxy() );
-    }
-
-    public IItemHandlerModifiable getItemHandler()
-    {
-        return m_itemHandler;
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
-    {
-        if( cap == ITEM_HANDLER_CAPABILITY )
-        {
-            if( itemHandlerCap == null ) itemHandlerCap = LazyOptional.of( () -> new InvWrapper( this ) );
-            return itemHandlerCap.cast();
-        }
-        return super.getCapability( cap, side );
     }
 
     @Nullable

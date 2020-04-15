@@ -54,14 +54,9 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         drawPrintout( transform, render, stack );
     }
 
-    @SubscribeEvent
-    public static void onRenderInFrame( RenderItemInFrameEvent event )
+    public static boolean onRenderInFrame( ItemStack stack, MatrixStack transform, VertexConsumerProvider buffers )
     {
-        ItemStack stack = event.getItem();
-        if( !(stack.getItem() instanceof ItemPrintout) ) return;
-        event.setCanceled( true );
-
-        MatrixStack transform = event.getMatrix();
+        if( !(stack.getItem() instanceof ItemPrintout) ) return false;
 
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate( 0.0f, 0.0f, -0.001f );
@@ -69,7 +64,9 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         transform.scale( 0.95f, 0.95f, -0.95f );
         transform.translate( -0.5f, -0.5f, 0.0f );
 
-        drawPrintout( transform, event.getBuffers(), stack );
+        drawPrintout( transform, buffers, stack );
+
+        return true;
     }
 
     private static void drawPrintout( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )

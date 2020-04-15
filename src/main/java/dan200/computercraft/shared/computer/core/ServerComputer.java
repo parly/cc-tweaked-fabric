@@ -21,14 +21,13 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
+import net.minecraft.SharedConstants;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.container.Container;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraftforge.versions.mcp.MCPVersion;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -161,6 +160,9 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public void broadcastState( boolean force )
     {
+        MinecraftServer server = m_world == null ? null : m_world.getServer();
+        if( server == null ) return;
+
         if( hasOutputChanged() || force )
         {
             // Send computer state to all clients
@@ -170,8 +172,6 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         if( hasTerminalChanged() || force )
         {
             // Send terminal state to clients who are currently interacting with the computer.
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-
             NetworkMessage packet = null;
             for( PlayerEntity player : server.getPlayerManager().getPlayerList() )
             {
@@ -346,7 +346,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Minecraft " + MCPVersion.getMCVersion() + ")";
+        return "ComputerCraft ${version} (Minecraft " + SharedConstants.getGameVersion() + ")";
     }
 
     @Override

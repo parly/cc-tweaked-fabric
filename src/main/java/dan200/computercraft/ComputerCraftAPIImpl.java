@@ -147,6 +147,14 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         BlockEntity tile = world.getBlockEntity( pos );
-        return tile == null ? LazyOptional.empty() : tile.getCapability( CapabilityWiredElement.CAPABILITY, side );
+        if( tile instanceof TileCable )
+        {
+            return ((TileCable) tile).getElement( side );
+        }
+        else if( tile instanceof TileWiredModemFull )
+        {
+            return ((TileWiredModemFull) tile).getElement();
+        }
+        return null;
     }
 }

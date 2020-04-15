@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.network.container;
 
+import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -12,10 +13,10 @@ import net.minecraft.container.Container;
 import net.minecraft.container.ContainerType;
 import net.minecraft.container.NameableContainerFactory;
 import net.minecraft.util.PacketByteBuf;
-import net.minecraftforge.common.extensions.IForgeContainerType;
-import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.util.function.Function;
 
 /**
@@ -28,12 +29,12 @@ public interface ContainerData
 
     default void open( PlayerEntity player, NameableContainerFactory owner )
     {
-        NetworkHooks.openGui( (ServerPlayerEntity) player, owner, this::toBytes );
+        ContainerProviderRegistry.INSTANCE.openContainer( (ServerPlayerEntity) player, new Identifier( ComputerCraft.MOD_ID, owner.getDisplayName().getString() ), this::toBytes );
     }
 
     static <C extends Container, T extends ContainerData> ContainerType<C> toType( Function<PacketByteBuf, T> reader, Factory<C, T> factory )
     {
-        return IForgeContainerType.create( ( id, player, data ) -> factory.create( id, player, reader.apply( data ) ) );
+        return ContainerTypeCompat.create( ( id, player, data ) -> factory.create( id, player, reader.apply( data ) ) );
     }
 
     interface Factory<C extends Container, T extends ContainerData>

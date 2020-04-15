@@ -15,12 +15,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -37,7 +31,7 @@ public final class InventoryUtil
 
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || ItemHandlerHelper.canItemStacksStack( a, b );
+        return a == b || (a.getItem() == b.getItem() && ItemStack.areTagsEqual( a, b ));
     }
 
     /**
@@ -71,25 +65,13 @@ public final class InventoryUtil
 
     // Methods for finding inventories:
 
-    public static IItemHandler getInventory( World world, BlockPos pos, Direction side )
+    public static Inventory getInventory( World world, BlockPos pos, Direction side )
     {
         // Look for tile with inventory
         BlockEntity tileEntity = world.getBlockEntity( pos );
-        if( tileEntity != null )
+        if( tileEntity instanceof Inventory )
         {
-            LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
-            if( itemHandler.isPresent() )
-            {
-                return itemHandler.orElseThrow( NullPointerException::new );
-            }
-            else if( side != null && tileEntity instanceof SidedInventory )
-            {
-                return new SidedInvWrapper( (SidedInventory) tileEntity, side );
-            }
-            else if( tileEntity instanceof Inventory )
-            {
-                return new InvWrapper( (Inventory) tileEntity );
-            }
+            return (Inventory) tileEntity;
         }
 
         // Look for entity with inventory
@@ -108,7 +90,7 @@ public final class InventoryUtil
             Entity entity = hit.getKey();
             if( entity instanceof Inventory )
             {
-                return new InvWrapper( (Inventory) entity );
+                return (Inventory) entity;
             }
         }
         return null;
@@ -117,19 +99,19 @@ public final class InventoryUtil
     // Methods for placing into inventories:
 
     @Nonnull
-    public static ItemStack storeItems( @Nonnull ItemStack itemstack, IItemHandler inventory, int begin )
+    public static ItemStack storeItems( @Nonnull ItemStack itemstack, ItemStorage inventory, int begin )
     {
         return storeItems( itemstack, inventory, 0, inventory.getSlots(), begin );
     }
 
     @Nonnull
-    public static ItemStack storeItems( @Nonnull ItemStack itemstack, IItemHandler inventory )
+    public static ItemStack storeItems( @Nonnull ItemStack itemstack, ItemStorage inventory )
     {
         return storeItems( itemstack, inventory, 0, inventory.getSlots(), 0 );
     }
 
     @Nonnull
-    public static ItemStack storeItems( @Nonnull ItemStack stack, IItemHandler inventory, int start, int range, int begin )
+    public static ItemStack storeItems( @Nonnull ItemStack stack, ItemStorage inventory, int start, int range, int begin )
     {
         if( stack.isEmpty() ) return ItemStack.EMPTY;
 
@@ -147,19 +129,19 @@ public final class InventoryUtil
     // Methods for taking out of inventories
 
     @Nonnull
-    public static ItemStack takeItems( int count, IItemHandler inventory, int begin )
+    public static ItemStack takeItems( int count, ItemStorage inventory, int begin )
     {
         return takeItems( count, inventory, 0, inventory.getSlots(), begin );
     }
 
     @Nonnull
-    public static ItemStack takeItems( int count, IItemHandler inventory )
+    public static ItemStack takeItems( int count, ItemStorage inventory )
     {
         return takeItems( count, inventory, 0, inventory.getSlots(), 0 );
     }
 
     @Nonnull
-    public static ItemStack takeItems( int count, IItemHandler inventory, int start, int range, int begin )
+    public static ItemStack takeItems( int count, ItemStorage inventory, int start, int range, int begin )
     {
         // Combine multiple stacks from inventory into one if necessary
         ItemStack partialStack = ItemStack.EMPTY;

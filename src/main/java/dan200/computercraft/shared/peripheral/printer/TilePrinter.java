@@ -13,6 +13,7 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DefaultSidedInventory;
+import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.BlockState;
@@ -29,12 +30,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,7 +57,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     Text customName;
 
     private final DefaultedList<ItemStack> m_inventory = DefaultedList.ofSize( SLOTS, ItemStack.EMPTY );
-    private LazyOptional<IItemHandlerModifiable>[] itemHandlerCaps;
+    private final ItemStorage m_itemHandlerAll = ItemStorage.wrap( this );
 
     private final Terminal m_page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
     private String m_pageTitle = "";
@@ -77,22 +72,6 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     public void destroy()
     {
         ejectContents();
-    }
-
-    @Override
-    protected void invalidateCaps()
-    {
-        super.invalidateCaps();
-
-        if( itemHandlerCaps != null )
-        {
-            for( int i = 0; i < itemHandlerCaps.length; i++ )
-            {
-                if( itemHandlerCaps[i] == null ) continue;
-                itemHandlerCaps[i].invalidate();
-                itemHandlerCaps[i] = null;
-            }
-        }
     }
 
     @Nonnull
@@ -464,31 +443,6 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         if( state.get( BlockPrinter.TOP ) == top & state.get( BlockPrinter.BOTTOM ) == bottom ) return;
 
         getWorld().setBlockState( getPos(), state.with( BlockPrinter.TOP, top ).with( BlockPrinter.BOTTOM, bottom ) );
-    }
-
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction facing )
-    {
-        if( capability == ITEM_HANDLER_CAPABILITY )
-        {
-            LazyOptional<IItemHandlerModifiable>[] handlers = itemHandlerCaps;
-            if( handlers == null ) handlers = itemHandlerCaps = new LazyOptional[7];
-
-            int index = facing == null ? 0 : 1 + facing.getId();
-            LazyOptional<IItemHandlerModifiable> handler = handlers[index];
-            if( handler == null )
-            {
-                handler = handlers[index] = facing == null
-                    ? LazyOptional.of( () -> new InvWrapper( this ) )
-                    : LazyOptional.of( () -> new SidedInvWrapper( this, facing ) );
-            }
-
-            return handler.cast();
-        }
-
-        return super.getCapability( capability, facing );
     }
 
     @Override

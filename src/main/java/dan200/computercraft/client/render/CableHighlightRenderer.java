@@ -19,12 +19,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
-import net.fabricmc.api.EnvType;
-import net.minecraftforge.client.event.DrawHighlightEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = EnvType.CLIENT )
 public final class CableHighlightRenderer
 {
     private CableHighlightRenderer()
@@ -37,23 +32,18 @@ public final class CableHighlightRenderer
      * @param event The event to observe
      * @see WorldRenderer#drawSelectionBox(MatrixStack, IVertexBuilder, Entity, double, double, double, BlockPos, BlockState)
      */
-    @SubscribeEvent
-    public static void drawHighlight( DrawHighlightEvent.HighlightBlock event )
+    public static void drawHighlight( Camera info, BlockHitResult hit )
     {
-        BlockHitResult hit = event.getTarget();
         BlockPos pos = hit.getBlockPos();
-        World world = event.getInfo().getFocusedEntity().getEntityWorld();
-        Camera info = event.getInfo();
+        World world = info.getFocusedEntity().getEntityWorld();
 
         BlockState state = world.getBlockState( pos );
 
         // We only care about instances with both cable and modem.
         if( state.getBlock() != ComputerCraft.Blocks.cable || state.get( BlockCable.MODEM ).getFacing() == null || !state.get( BlockCable.CABLE ) )
         {
-            return;
+            return false;
         }
-
-        event.setCanceled( true );
 
         VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? CableShapes.getModemShape( state )
@@ -72,5 +62,7 @@ public final class CableHighlightRenderer
             buffer.vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
                 .color( 0, 0, 0, 0.4f ).next();
         } );
+
+        return true;
     }
 }

@@ -90,17 +90,6 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         if( m_recordPlaying ) stopRecord();
     }
 
-    @Override
-    protected void invalidateCaps()
-    {
-        super.invalidateCaps();
-        if( itemHandlerCap != null )
-        {
-            itemHandlerCap.invalidate();
-            itemHandlerCap = null;
-        }
-    }
-
     @Nonnull
     @Override
     public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
